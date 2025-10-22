@@ -180,14 +180,16 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     display: 'flex',
     height: '100vh',
+    width: '100vw',
     backgroundColor: '#f0f0f0',
+    overflow: 'hidden',
   },
   sidebar: {
-    width: '300px',
+    width: '220px',
     backgroundColor: '#e0e0e0',
-    padding: '20px',
+    padding: '15px',
     borderRight: '2px solid #999',
-    overflowY: 'auto',
+    overflowY: 'hidden',
   },
   mainContent: {
     flex: 1,
@@ -209,20 +211,21 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   chartsGrid: {
     flex: 1,
-    display: 'grid',
-    gridTemplateColumns: '1fr',
-    gridTemplateRows: '1fr 1fr',
-    gap: '20px',
-    padding: '20px',
-    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+    padding: '15px',
+    overflow: 'hidden',
   },
   chartContainer: {
+    flex: 1,
     backgroundColor: '#e8e8e8',
     border: '2px solid #999',
     borderRadius: '4px',
-    padding: '15px',
+    padding: '10px',
     display: 'flex',
     flexDirection: 'column',
+    minHeight: 0,
   },
 };
 
