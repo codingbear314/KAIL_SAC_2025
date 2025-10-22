@@ -150,18 +150,20 @@ const GamePage: React.FC = () => {
         />
       )}
 
-      {/* Left Sidebar - Scoreboard */}
+      {/* Left Sidebar - Timer and Scoreboard */}
       <div style={styles.sidebar}>
+        {/* Timer */}
+        <div style={styles.timerSection}>
+          <div style={styles.timerLabel}>TIME</div>
+          <div style={styles.timer}>{formatTime(timeRemaining)}</div>
+        </div>
+        
+        {/* Scoreboard */}
         <Scoreboard chartPrices={chartPrices} />
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Charts Only */}
       <div style={styles.mainContent}>
-        {/* Header with Timer */}
-        <header style={styles.header}>
-          <div style={styles.timer}>{formatTime(timeRemaining)}</div>
-        </header>
-
         {/* Charts Grid - 1x2 layout */}
         <div style={styles.chartsGrid}>
           <div style={styles.chartContainer}>
@@ -181,33 +183,48 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     height: '100vh',
     width: '100vw',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#f5f1e8',
     overflow: 'hidden',
+    fontFamily: "'Georgia', 'Times New Roman', serif",
   },
   sidebar: {
-    width: '220px',
-    backgroundColor: '#e0e0e0',
-    padding: '15px',
-    borderRight: '2px solid #999',
-    overflowY: 'hidden',
+    width: '280px',
+    backgroundColor: '#e8e3d8',
+    padding: '20px',
+    borderRight: '3px double #2a2a2a',
+    overflowY: 'auto',
+    boxShadow: 'inset -5px 0 10px rgba(0, 0, 0, 0.1)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '25px',
+  },
+  timerSection: {
+    backgroundColor: '#2a2a2a',
+    padding: '20px',
+    border: '4px solid #1a1a1a',
+    boxShadow: '6px 6px 0 rgba(0, 0, 0, 0.3)',
+    textAlign: 'center',
+  },
+  timerLabel: {
+    fontSize: '18px',
+    fontWeight: 'bold',
+    color: '#f5f1e8',
+    letterSpacing: '4px',
+    marginBottom: '10px',
+    fontFamily: "'Georgia', serif",
+  },
+  timer: {
+    fontSize: '48px',
+    fontWeight: '900',
+    color: '#f5f1e8',
+    fontFamily: "'Courier New', monospace",
+    letterSpacing: '4px',
   },
   mainContent: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-  },
-  header: {
-    backgroundColor: '#d0d0d0',
-    padding: '20px',
-    textAlign: 'center',
-    borderBottom: '2px solid #999',
-  },
-  timer: {
-    fontSize: '48px',
-    fontWeight: 'bold',
-    color: '#333',
-    fontFamily: 'monospace',
   },
   chartsGrid: {
     flex: 1,
@@ -216,16 +233,27 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '15px',
     padding: '15px',
     overflow: 'hidden',
+    backgroundImage: `
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      )
+    `,
   },
   chartContainer: {
     flex: 1,
-    backgroundColor: '#e8e8e8',
-    border: '2px solid #999',
-    borderRadius: '4px',
-    padding: '10px',
+    backgroundColor: '#fefcf7',
+    border: '4px solid #2a2a2a',
+    borderRadius: '2px',
+    padding: '15px',
     display: 'flex',
     flexDirection: 'column',
     minHeight: 0,
+    boxShadow: '8px 8px 0 rgba(0, 0, 0, 0.2)',
+    position: 'relative',
   },
 };
 

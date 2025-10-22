@@ -38,23 +38,45 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   chartArea: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
+    backgroundColor: '#fefcf7',
+    border: '3px double #2a2a2a',
+    borderRadius: '0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '200px',
+    position: 'relative',
+    overflow: 'hidden',
+    backgroundImage: `
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 50px,
+        rgba(42,42,42,0.05) 50px,
+        rgba(42,42,42,0.05) 51px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 50px,
+        rgba(42,42,42,0.05) 50px,
+        rgba(42,42,42,0.05) 51px
+      )
+    `,
   },
   placeholder: {
-    color: '#666',
+    color: '#4a4a4a',
     fontSize: '16px',
     textAlign: 'center',
+    fontFamily: "'Georgia', serif",
+    fontStyle: 'italic',
   },
   dataInfo: {
     marginTop: '10px',
     fontSize: '14px',
-    color: '#888',
+    color: '#1a1a1a',
+    fontFamily: "'Courier New', monospace",
+    fontWeight: 'bold',
   },
 };
 

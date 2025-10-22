@@ -28,9 +28,9 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ chartPrices }) => {
   const prices = chartPrices;
 
   const PLAYER_COLORS = {
-    1: '#ff2339ff', 
-    2: '#2dff5bff',
-    3: '#27a1ffff',
+    1: '#1a1a1a', 
+    2: '#1a1a1a',
+    3: '#1a1a1a',
   };
 
   // either all cash or all stock
@@ -79,15 +79,13 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ chartPrices }) => {
             key={player.id} 
             style={{
               ...styles.playerCard,
-              borderColor: player.color,
-              backgroundColor: player.color + '33', // Add transparency
             }}
           >
             <div style={styles.playerHeader}>
               <div 
                 style={{
-                  ...styles.rankBadge,
-                  backgroundColor: player.color,
+                  ...styles.rankText,
+                  color: player.color,
                 }}
               >
                 #{player.rank}
@@ -143,34 +141,36 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   playerCard: {
     border: '3px solid',
-    borderRadius: '8px',
+    borderRadius: '0',
     padding: '10px',
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
+    backgroundColor: '#fefcf7',
+    boxShadow: '6px 6px 0 rgba(0, 0, 0, 0.15)',
+    position: 'relative',
   },
   playerHeader: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
+    borderBottom: '2px solid #2a2a2a',
+    paddingBottom: '5px',
   },
-  rankBadge: {
-    color: 'white',
-    width: '35px',
-    height: '35px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+  rankText: {
     fontWeight: 'bold',
-    fontSize: '14px',
+    fontSize: '20px',
     flexShrink: 0,
+    fontFamily: "'Georgia', serif",
   },
   playerName: {
     fontWeight: 'bold',
     fontSize: '16px',
-    color: '#333',
+    color: '#1a1a1a',
     flex: 1,
+    fontFamily: "'Georgia', serif",
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
   },
   chartsGrid: {
     display: 'grid',
@@ -179,9 +179,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '5px',
   },
   chartCell: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderRadius: '0',
     padding: '5px',
     display: 'flex',
     alignItems: 'center',
@@ -189,17 +189,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '12px',
     fontWeight: 'bold',
     textAlign: 'center',
+    fontFamily: "'Courier New', monospace",
   },
   cashValue: {
-    color: '#000000',
+    color: '#1a1a1a',
   },
   stockValue: {
-    color: '#22c55e',
+    color: '#1a1a1a',
+    textDecoration: 'underline',
+    textDecorationStyle: 'double',
   },
   sharesCell: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderRadius: '0',
     padding: '5px',
     display: 'flex',
     alignItems: 'center',
@@ -207,7 +210,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '10px',
     fontWeight: 'normal',
     textAlign: 'center',
-    color: '#666',
+    color: '#4a4a4a',
+    fontFamily: "'Courier New', monospace",
+    fontStyle: 'italic',
   },
 };
 
