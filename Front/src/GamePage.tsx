@@ -1,9 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Chart from './Chart';
 import Scoreboard from './Scoreboard';
 import GameOverlay from './GameOverlay';
 import { useSocket } from './hooks/useSocket';
 import './App.css';
+
+const GAME_DURATION = 180; // 3 minutes in seconds
+const TICK_RATE = 15; // Server tick rate (Hz)
+const MAX_TICKS = TICK_RATE * GAME_DURATION; // 2700 ticks
 
 const GamePage: React.FC = () => {
   const {
@@ -15,11 +19,31 @@ const GamePage: React.FC = () => {
     playerAction
   } = useSocket();
 
+  const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION);
+
   useEffect(() => {
     if (connected && playerId) {
       joinGame();
     }
   }, [connected, playerId]);
+
+  // Calculate time remaining based on server tick
+  useEffect(() => {
+    if (gameState?.game_running && gameState.current_tick !== undefined) {
+      const ticksRemaining = Math.max(0, MAX_TICKS - gameState.current_tick);
+      const secondsRemaining = Math.floor(ticksRemaining / TICK_RATE);
+      setTimeRemaining(secondsRemaining);
+    } else if (!gameState?.game_running) {
+      setTimeRemaining(GAME_DURATION);
+    }
+  }, [gameState?.current_tick, gameState?.game_running]);
+
+  // Format timer as MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -68,8 +92,8 @@ const GamePage: React.FC = () => {
 
       <div style={styles.sidebar}>
         <div style={styles.timerSection}>
-          <div style={styles.timerLabel}>LIVE</div>
-          <div style={styles.timer}>TICK {gameState?.current_tick || 0}</div>
+          <div style={styles.timerLabel}>TIME</div>
+          <div style={styles.timer}>{formatTime(timeRemaining)}</div>
         </div>
 
         {gameState && (

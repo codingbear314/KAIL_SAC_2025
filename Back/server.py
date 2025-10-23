@@ -17,6 +17,8 @@ stock_loader = StockDataLoader()
 
 TICK_RATE = 15
 TICK_INTERVAL = 1.0 / TICK_RATE
+GAME_DURATION_SECONDS = 180  # 3 minutes
+MAX_TICKS = TICK_RATE * GAME_DURATION_SECONDS  # 15 Hz * 180 sec = 2700 ticks
 
 game_loop_task = None
 available_stocks = []
@@ -47,12 +49,8 @@ def game_loop():
             state_update = game_state.get_state_dict()
             socketio.emit('game_update', state_update)
 
-            max_tick = min(
-                stock_loader.get_stock_length(game_state.stock_a_symbol),
-                stock_loader.get_stock_length(game_state.stock_b_symbol)
-            )
-
-            if game_state.current_tick >= max_tick - 1:
+            # Stop after 3 minutes (2700 ticks at 15 Hz)
+            if game_state.current_tick >= MAX_TICKS - 1:
                 game_state.game_running = False
                 socketio.emit('game_over', {
                     'final_state': state_update,
