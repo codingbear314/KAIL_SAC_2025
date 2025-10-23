@@ -13,8 +13,8 @@ interface ScoreboardProps {
 const Scoreboard: React.FC<ScoreboardProps> = ({
   leaderboard,
   players,
-  currentPriceA,
-  currentPriceB
+  // currentPriceA,
+  // currentPriceB
 }) => {
   const formatCurrency = (value: number) => {
     return `$${value.toLocaleString()}`;
@@ -142,7 +142,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '12px',
+    fontSize: '16px',
     fontWeight: 'bold',
     textAlign: 'center',
     fontFamily: "'Courier New', monospace",
@@ -163,7 +163,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '10px',
+    fontSize: '14px',
     fontWeight: 'normal',
     textAlign: 'center',
     color: '#4a4a4a',

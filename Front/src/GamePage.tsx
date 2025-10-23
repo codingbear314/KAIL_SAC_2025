@@ -57,11 +57,6 @@ const GamePage: React.FC = () => {
     startGame();
   };
 
-  const chartPrices = {
-    1: gameState?.stock_a.price || 0,
-    2: gameState?.stock_b.price || 0,
-  };
-
   return (
     <div style={styles.container}>
       {!gameState?.game_running && (
@@ -79,7 +74,6 @@ const GamePage: React.FC = () => {
 
         {gameState && (
           <Scoreboard
-            chartPrices={chartPrices}
             leaderboard={gameState.leaderboard}
             players={gameState.players}
             currentPriceA={gameState.stock_a.price}
@@ -93,32 +87,18 @@ const GamePage: React.FC = () => {
       <div style={styles.mainContent}>
         <div style={styles.chartsGrid}>
           <div style={styles.chartContainer}>
-            <div style={styles.chartHeader}>
-              {gameState?.stock_a.symbol || 'STOCK A'}
-            </div>
             <Chart
               chartId={1}
               data={[]}
               currentPrice={gameState?.stock_a.price || 0}
             />
-            <div style={styles.controls}>
-              <span style={styles.controlText}>P1: Q-Buy W-Sell</span>
-              <span style={styles.controlText}>P2: T-Buy Y-Sell</span>
-            </div>
           </div>
           <div style={styles.chartContainer}>
-            <div style={styles.chartHeader}>
-              {gameState?.stock_b.symbol || 'STOCK B'}
-            </div>
             <Chart
               chartId={2}
               data={[]}
               currentPrice={gameState?.stock_b.price || 0}
             />
-            <div style={styles.controls}>
-              <span style={styles.controlText}>P1: E-Buy R-Sell</span>
-              <span style={styles.controlText}>P2: U-Buy I-Sell</span>
-            </div>
           </div>
         </div>
       </div>
@@ -162,11 +142,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontFamily: "'Georgia', serif",
   },
   timer: {
-    fontSize: '36px',
+    fontSize: '48px',
     fontWeight: '900',
     color: '#f5f1e8',
     fontFamily: "'Courier New', monospace",
-    letterSpacing: '2px',
+    letterSpacing: '4px',
   },
   mainContent: {
     flex: 1,
@@ -202,30 +182,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: 0,
     boxShadow: '8px 8px 0 rgba(0, 0, 0, 0.2)',
     position: 'relative',
-  },
-  chartHeader: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    fontFamily: "'Georgia', serif",
-    textAlign: 'center',
-    padding: '10px',
-    borderBottom: '3px double #2a2a2a',
-    marginBottom: '10px',
-    textTransform: 'uppercase',
-    letterSpacing: '2px',
-  },
-  controls: {
-    display: 'flex',
-    justifyContent: 'space-around',
-    marginTop: '10px',
-    paddingTop: '10px',
-    borderTop: '2px solid #2a2a2a',
-  },
-  controlText: {
-    fontFamily: "'Courier New', monospace",
-    fontSize: '12px',
-    fontWeight: 'bold',
-    color: '#4a4a4a',
   },
 };
 
