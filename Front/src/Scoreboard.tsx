@@ -13,25 +13,33 @@ interface ScoreboardProps {
 const Scoreboard: React.FC<ScoreboardProps> = ({
   leaderboard,
   players,
-  // currentPriceA,
-  // currentPriceB
+  currentPriceA,
+  currentPriceB
 }) => {
   const formatCurrency = (value: number) => {
-    return `$${value.toLocaleString()}`;
+    return `$${Math.floor(value).toLocaleString()}`;
   };
 
-  const sortedLeaderboard = [...leaderboard].sort((a, b) => b.networth - a.networth);
+  // Fixed player order: Player 1, Player 2, Player 3, then AI agents
+  const fixedPlayerOrder = ['Player 1', 'Player 2'];
+  const aiPlayers = leaderboard.filter(entry => entry.type === 'ai');
+  
+  const chartPrices = {
+    1: currentPriceA,
+    2: currentPriceB,
+  };
 
   return (
     <div style={styles.container}>
       <div style={styles.scoreboardList}>
-        {sortedLeaderboard.map((entry, index) => {
-          const player = players[entry.player_id];
-          const isAI = entry.type === 'ai';
+        {/* Display fixed players first */}
+        {fixedPlayerOrder.map((playerId, index) => {
+          const player = players[playerId];
+          if (!player) return null;
 
           return (
             <div
-              key={entry.player_id}
+              key={playerId}
               style={styles.playerCard}
             >
               <div style={styles.playerHeader}>
@@ -39,48 +47,64 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                   #{index + 1}
                 </div>
                 <div style={styles.playerName}>
-                  {isAI ? '🤖 AI Agent' : entry.player_id}
+                  {playerId}
                 </div>
               </div>
 
-              {!isAI && player && (
-                <div style={styles.chartsGrid}>
-                  {/* Chart A */}
-                  <div
-                    style={{
-                      ...styles.chartCell,
-                      ...(player.fund_a.shares > 0 ? styles.stockValue : styles.cashValue)
-                    }}
-                  >
-                    {formatCurrency(player.fund_a.value)}
-                  </div>
-                  <div style={styles.sharesCell}>
-                    {player.fund_a.shares > 0 ? `${player.fund_a.shares.toFixed(2)}sh` : '-'}
-                  </div>
-
-                  {/* Chart B */}
-                  <div
-                    style={{
-                      ...styles.chartCell,
-                      ...(player.fund_b.shares > 0 ? styles.stockValue : styles.cashValue)
-                    }}
-                  >
-                    {formatCurrency(player.fund_b.value)}
-                  </div>
-                  <div style={styles.sharesCell}>
-                    {player.fund_b.shares > 0 ? `${player.fund_b.shares.toFixed(2)}sh` : '-'}
-                  </div>
+              <div style={styles.chartsGrid}>
+                {/* Chart A */}
+                <div
+                  style={{
+                    ...styles.chartCell,
+                    ...(player.fund_a.shares > 0 ? styles.stockValue : styles.cashValue)
+                  }}
+                >
+                  {formatCurrency(player.fund_a.shares > 0 
+                    ? player.fund_a.shares * chartPrices[1] 
+                    : player.fund_a.value)}
                 </div>
-              )}
-
-              {isAI && (
-                <div style={styles.aiNetworth}>
-                  Total: {formatCurrency(entry.networth)}
+                <div style={styles.sharesCell}>
+                  {player.fund_a.shares > 0 ? `${player.fund_a.shares.toFixed(2)}sh` : '-'}
                 </div>
-              )}
+
+                {/* Chart B */}
+                <div
+                  style={{
+                    ...styles.chartCell,
+                    ...(player.fund_b.shares > 0 ? styles.stockValue : styles.cashValue)
+                  }}
+                >
+                  {formatCurrency(player.fund_b.shares > 0 
+                    ? player.fund_b.shares * chartPrices[2] 
+                    : player.fund_b.value)}
+                </div>
+                <div style={styles.sharesCell}>
+                  {player.fund_b.shares > 0 ? `${player.fund_b.shares.toFixed(2)}sh` : '-'}
+                </div>
+              </div>
             </div>
           );
         })}
+
+        {/* Display AI players after */}
+        {aiPlayers.map((entry, index) => (
+          <div
+            key={entry.player_id}
+            style={styles.playerCard}
+          >
+            <div style={styles.playerHeader}>
+              <div style={{...styles.rankText, color: '#1a1a1a'}}>
+                #{fixedPlayerOrder.length + index + 1}
+              </div>
+              <div style={styles.playerName}>
+                🤖 AI Agent
+              </div>
+            </div>
+            <div style={styles.aiNetworth}>
+              Total: {formatCurrency(entry.networth)}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
