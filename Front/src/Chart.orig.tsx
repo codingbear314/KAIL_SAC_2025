@@ -1,8 +1,9 @@
 import React from 'react';
+import type { CandleData } from './hooks/useWebSocket';
 
 interface ChartProps {
   chartId: number;
-  data: any[];
+  data: CandleData[];
   currentPrice: number;
 }
 
@@ -10,11 +11,14 @@ const Chart: React.FC<ChartProps> = ({ chartId, data, currentPrice }) => {
   return (
     <div style={styles.container}>
       <div style={styles.chartArea}>
+        {/* Candle chart will be implemented here later */}
         <div style={styles.placeholder}>
           <p>Chart {chartId} - Candlestick chart will be displayed here</p>
           <p style={styles.dataInfo}>
+            Receiving {data.length} candles
             {currentPrice > 0 && (
               <span>
+                <br />
                 Latest: ${currentPrice.toFixed(2)}
               </span>
             )}
