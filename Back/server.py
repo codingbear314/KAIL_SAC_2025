@@ -43,8 +43,27 @@ def game_loop():
                 game_state.current_tick
             )
 
-            ai_total_networth = ((networth_a + networth_b) / 2) * game_state.initial_cash
-            game_state.update_prices(price_a, price_b, ai_total_networth)
+            # Update prices first
+            game_state.update_prices(price_a, price_b, 0)
+
+            # Execute AI actions from CSV
+            ai_player = game_state.get_player('AI')
+            if ai_player:
+                # Execute action for fund A
+                if action_a == 'buy':
+                    ai_player.fund_a.all_in(price_a)
+                elif action_a == 'sell':
+                    ai_player.fund_a.all_out(price_a)
+                
+                # Execute action for fund B
+                if action_b == 'buy':
+                    ai_player.fund_b.all_in(price_b)
+                elif action_b == 'sell':
+                    ai_player.fund_b.all_out(price_b)
+                
+                # Calculate AI networth from actual holdings
+                ai_networth = ai_player.get_total_networth(price_a, price_b)
+                game_state.ai_networth = ai_networth
 
             state_update = game_state.get_state_dict()
             socketio.emit('game_update', state_update)
@@ -78,6 +97,7 @@ def handle_disconnect():
 
 @socketio.on('join_game')
 def handle_join_game(data):
+    game_state.add_player('AI')  # Add AI as a player
     game_state.add_player('Player 1')
     game_state.add_player('Player 2')
 

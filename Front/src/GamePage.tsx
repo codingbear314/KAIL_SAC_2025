@@ -32,6 +32,7 @@ const GamePage: React.FC = () => {
   } = useSocket();
 
   const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION);
+  const [showGameOver, setShowGameOver] = useState(false);
 
   useEffect(() => {
     if (connected && playerId) {
@@ -45,10 +46,16 @@ const GamePage: React.FC = () => {
       const ticksRemaining = Math.max(0, MAX_TICKS - gameState.current_tick);
       const secondsRemaining = Math.floor(ticksRemaining / TICK_RATE);
       setTimeRemaining(secondsRemaining);
+      
+      // Show game over when timer reaches 0
+      if (secondsRemaining === 0 && !showGameOver) {
+        setShowGameOver(true);
+      }
     } else if (!gameState?.game_running) {
       setTimeRemaining(GAME_DURATION);
+      setShowGameOver(false);
     }
-  }, [gameState?.current_tick, gameState?.game_running]);
+  }, [gameState?.current_tick, gameState?.game_running, showGameOver]);
 
   // Format timer as MM:SS
   const formatTime = (seconds: number): string => {
@@ -78,10 +85,10 @@ const GamePage: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      {!gameState?.game_running && (
+      {(!gameState?.game_running || showGameOver) && (
         <GameOverlay
           onStartGame={handleStartGame}
-          isGameOver={false}
+          isGameOver={showGameOver}
         />
       )}
 

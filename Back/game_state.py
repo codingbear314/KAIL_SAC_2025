@@ -96,17 +96,12 @@ class GameState:
         leaderboard = []
 
         for player_id, player in self.players.items():
+            player_type = 'ai' if player_id == 'AI' else 'human'
             leaderboard.append({
                 'player_id': player_id,
                 'networth': player.get_total_networth(self.current_price_a, self.current_price_b),
-                'type': 'human'
+                'type': player_type
             })
-
-        leaderboard.append({
-            'player_id': 'AI',
-            'networth': self.ai_networth,
-            'type': 'ai'
-        })
 
         leaderboard.sort(key=lambda x: x['networth'], reverse=True)
         return leaderboard

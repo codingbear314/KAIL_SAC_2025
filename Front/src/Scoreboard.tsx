@@ -8,46 +8,58 @@ interface ScoreboardProps {
   currentPriceB: number;
 }
 
-const PLAYER_ORDER = ['Player 1', 'Player 2'];
+const DISPLAY_ORDER = ['AI', 'Player 1', 'Player 2'];
 
 const Scoreboard: React.FC<ScoreboardProps> = ({
-  leaderboard,
   players,
   currentPriceA,
   currentPriceB
 }) => {
   const formatCurrency = (value: number) => `$${Math.floor(value).toLocaleString()}`;
   
-  const calculateFundValue = (shares: number, price: number, cashValue: number) => {
-    return shares > 0 ? shares * price : cashValue;
-  };
+  // Calculate networth for all players
+  const networthMap: Record<string, number> = {};
+  DISPLAY_ORDER.forEach(playerId => {
+    const player = players[playerId];
+    if (player) {
+      const fundAValue = player.fund_a.shares > 0 
+        ? player.fund_a.shares * currentPriceA 
+        : player.fund_a.value;
+      const fundBValue = player.fund_b.shares > 0 
+        ? player.fund_b.shares * currentPriceB 
+        : player.fund_b.value;
+      networthMap[playerId] = fundAValue + fundBValue;
+    }
+  });
 
-  const aiPlayers = leaderboard.filter(entry => entry.type === 'ai');
+  // Create rank map based on networth
+  const rankMap = Object.fromEntries(
+    Object.entries(networthMap)
+      .sort((a, b) => b[1] - a[1])
+      .map(([id], index) => [id, index + 1])
+  );
 
   return (
     <div style={styles.container}>
       <div style={styles.scoreboardList}>
-        {/* Human Players */}
-        {PLAYER_ORDER.map((playerId, index) => {
+        {DISPLAY_ORDER.map((playerId) => {
           const player = players[playerId];
           if (!player) return null;
 
-          const fundAValue = calculateFundValue(
-            player.fund_a.shares,
-            currentPriceA,
-            player.fund_a.value
-          );
-          const fundBValue = calculateFundValue(
-            player.fund_b.shares,
-            currentPriceB,
-            player.fund_b.value
-          );
+          const fundAValue = player.fund_a.shares > 0 
+            ? player.fund_a.shares * currentPriceA 
+            : player.fund_a.value;
+          const fundBValue = player.fund_b.shares > 0 
+            ? player.fund_b.shares * currentPriceB 
+            : player.fund_b.value;
+
+          const displayName = playerId === 'AI' ? '🤖 AI Agent' : playerId;
 
           return (
             <div key={playerId} style={styles.playerCard}>
               <div style={styles.playerHeader}>
-                <div style={styles.rankText}>#{index + 1}</div>
-                <div style={styles.playerName}>{playerId}</div>
+                <div style={styles.rankText}>#{rankMap[playerId]}</div>
+                <div style={styles.playerName}>{displayName}</div>
               </div>
 
               <div style={styles.fundsGrid}>
@@ -76,19 +88,6 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
             </div>
           );
         })}
-
-        {/* AI Players */}
-        {aiPlayers.map((entry, index) => (
-          <div key={entry.player_id} style={styles.playerCard}>
-            <div style={styles.playerHeader}>
-              <div style={styles.rankText}>#{PLAYER_ORDER.length + index + 1}</div>
-              <div style={styles.playerName}>🤖 AI Agent</div>
-            </div>
-            <div style={styles.aiNetworth}>
-              Total: {formatCurrency(entry.networth)}
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -166,13 +165,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: '#4a4a4a',
     fontFamily: "'Courier New', monospace",
     fontStyle: 'italic',
-  },
-  aiNetworth: {
-    fontSize: '14px',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontFamily: "'Courier New', monospace",
-    padding: '8px',
   },
 };
 
