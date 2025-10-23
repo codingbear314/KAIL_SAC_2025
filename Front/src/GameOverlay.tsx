@@ -12,9 +12,7 @@ const GameOverlay: React.FC<GameOverlayProps> = ({ onStartGame, isGameOver }) =>
   return (
     <div style={styles.overlay}>
       <div style={styles.content}>
-        {isGameOver && (
-          <h1 style={styles.gameOverText}>Game Over!</h1>
-        )}
+        {isGameOver && <h1 style={styles.gameOverText}>Game Over!</h1>}
         <button onClick={onStartGame} style={styles.startButton}>
           {isGameOver ? 'Play Again' : 'Start Game'}
         </button>

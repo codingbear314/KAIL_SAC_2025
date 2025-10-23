@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 interface ChartProps {
-  chartId: number;
-  data: any[];
   currentPrice: number;
 }
 
@@ -11,10 +9,14 @@ interface Candle {
   high: number;
   low: number;
   close: number;
-  timestamp: number;
 }
 
-const Chart: React.FC<ChartProps> = ({ chartId, data, currentPrice }) => {
+const CANDLE_INTERVAL_MS = 500;
+const MAX_CANDLES = 100;
+const GRID_LINES = 5;
+const CHART_PADDING = 0.1;
+
+const Chart: React.FC<ChartProps> = ({ currentPrice }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,19 +43,17 @@ const Chart: React.FC<ChartProps> = ({ chartId, data, currentPrice }) => {
     if (currentPrice <= 0) return;
 
     const now = Date.now();
-    const CANDLE_INTERVAL = 500; // 1 second per candle
 
     // Create new candle every interval
-    if (now - lastCandleTime.current >= CANDLE_INTERVAL) {
+    if (now - lastCandleTime.current >= CANDLE_INTERVAL_MS) {
       if (currentCandle.current) {
-        setCandles(prev => [...prev.slice(-99), currentCandle.current!]);
+        setCandles(prev => [...prev.slice(-MAX_CANDLES + 1), currentCandle.current!]);
       }
       currentCandle.current = {
         open: currentPrice,
         high: currentPrice,
         low: currentPrice,
         close: currentPrice,
-        timestamp: now
       };
       lastCandleTime.current = now;
     } else if (currentCandle.current) {
@@ -68,7 +68,6 @@ const Chart: React.FC<ChartProps> = ({ chartId, data, currentPrice }) => {
         high: currentPrice,
         low: currentPrice,
         close: currentPrice,
-        timestamp: now
       };
       lastCandleTime.current = now;
     }
@@ -82,53 +81,51 @@ const Chart: React.FC<ChartProps> = ({ chartId, data, currentPrice }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Calculate price range
-    const prices = candles.flatMap((c: Candle) => [c.high, c.low]);
+    const prices = candles.flatMap(c => [c.high, c.low]);
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
     const priceRange = maxPrice - minPrice;
-    const padding = priceRange * 0.1;
+    const padding = priceRange * CHART_PADDING;
 
-    // Helper to convert price to Y coordinate
+    // Convert price to Y coordinate
     const priceToY = (price: number) => {
       return canvas.height - ((price - minPrice + padding) / (priceRange + padding * 2)) * canvas.height;
     };
 
-    // Draw grid lines
+    // Draw grid lines and price labels
     ctx.strokeStyle = 'rgba(42, 42, 42, 0.1)';
     ctx.lineWidth = 1;
-    for (let i = 0; i <= 5; i++) {
-      const y = (canvas.height / 5) * i;
+    ctx.fillStyle = '#4a4a4a';
+    ctx.font = '11px Courier New';
+    ctx.textAlign = 'right';
+
+    for (let i = 0; i <= GRID_LINES; i++) {
+      const y = (canvas.height / GRID_LINES) * i;
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(canvas.width, y);
       ctx.stroke();
 
-      // Price labels
-      const price = maxPrice + padding - (priceRange + padding * 2) * (i / 5);
-      ctx.fillStyle = '#4a4a4a';
-      ctx.font = '11px Courier New';
-      ctx.textAlign = 'right';
+      const price = maxPrice + padding - (priceRange + padding * 2) * (i / GRID_LINES);
       ctx.fillText(`$${price.toFixed(2)}`, canvas.width - 5, y - 3);
     }
 
-    // Calculate candle width
+    // Calculate candle dimensions
     const candleWidth = Math.max(2, Math.floor((canvas.width - 40) / candles.length) - 2);
     const spacing = Math.floor((canvas.width - 40) / candles.length);
 
-    // Draw candles
-    candles.forEach((candle: Candle, index: number) => {
+    // Draw each candle
+    candles.forEach((candle, index) => {
       const x = 20 + index * spacing + spacing / 2;
       const openY = priceToY(candle.open);
       const closeY = priceToY(candle.close);
       const highY = priceToY(candle.high);
       const lowY = priceToY(candle.low);
-
       const isBullish = candle.close >= candle.open;
-      
+
       // Draw wick
       ctx.strokeStyle = isBullish ? '#2d6a2d' : '#8b0000';
       ctx.lineWidth = 1;
@@ -164,7 +161,6 @@ const Chart: React.FC<ChartProps> = ({ chartId, data, currentPrice }) => {
       ctx.stroke();
       ctx.setLineDash([]);
     }
-
   }, [candles, currentPrice, dimensions]);
 
   return (

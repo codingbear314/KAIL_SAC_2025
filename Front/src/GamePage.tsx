@@ -5,9 +5,21 @@ import GameOverlay from './GameOverlay';
 import { useSocket } from './hooks/useSocket';
 import './App.css';
 
-const GAME_DURATION = 180; // 3 minutes in seconds
+const GAME_DURATION = 180; // 3 minutes
 const TICK_RATE = 15; // Server tick rate (Hz)
 const MAX_TICKS = TICK_RATE * GAME_DURATION; // 2700 ticks
+
+// Keyboard controls mapping
+const CONTROLS: Record<string, { player: string; fund: 'a' | 'b'; action: 'all_in' | 'all_out' }> = {
+  'q': { player: 'Player 1', fund: 'a', action: 'all_in' },
+  'w': { player: 'Player 1', fund: 'a', action: 'all_out' },
+  'e': { player: 'Player 1', fund: 'b', action: 'all_in' },
+  'r': { player: 'Player 1', fund: 'b', action: 'all_out' },
+  't': { player: 'Player 2', fund: 'a', action: 'all_in' },
+  'y': { player: 'Player 2', fund: 'a', action: 'all_out' },
+  'u': { player: 'Player 2', fund: 'b', action: 'all_in' },
+  'i': { player: 'Player 2', fund: 'b', action: 'all_out' },
+};
 
 const GamePage: React.FC = () => {
   const {
@@ -45,31 +57,14 @@ const GamePage: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Handle keyboard controls
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (!gameState?.game_running) return;
 
-      const key = event.key.toLowerCase();
-
-      // Player 1 controls (Q/W/E/R)
-      if (key === 'q') {
-        playerAction('Player 1', 'a', 'all_in');
-      } else if (key === 'w') {
-        playerAction('Player 1', 'a', 'all_out');
-      } else if (key === 'e') {
-        playerAction('Player 1', 'b', 'all_in');
-      } else if (key === 'r') {
-        playerAction('Player 1', 'b', 'all_out');
-      }
-      // Player 2 controls (T/Y/U/I)
-      else if (key === 't') {
-        playerAction('Player 2', 'a', 'all_in');
-      } else if (key === 'y') {
-        playerAction('Player 2', 'a', 'all_out');
-      } else if (key === 'u') {
-        playerAction('Player 2', 'b', 'all_in');
-      } else if (key === 'i') {
-        playerAction('Player 2', 'b', 'all_out');
+      const control = CONTROLS[event.key.toLowerCase()];
+      if (control) {
+        playerAction(control.player, control.fund, control.action);
       }
     };
 
@@ -102,8 +97,6 @@ const GamePage: React.FC = () => {
             players={gameState.players}
             currentPriceA={gameState.stock_a.price}
             currentPriceB={gameState.stock_b.price}
-            stockASymbol={gameState.stock_a.symbol}
-            stockBSymbol={gameState.stock_b.symbol}
           />
         )}
       </div>
@@ -111,18 +104,10 @@ const GamePage: React.FC = () => {
       <div style={styles.mainContent}>
         <div style={styles.chartsGrid}>
           <div style={styles.chartContainer}>
-            <Chart
-              chartId={1}
-              data={[]}
-              currentPrice={gameState?.stock_a.price || 0}
-            />
+            <Chart currentPrice={gameState?.stock_a.price || 0} />
           </div>
           <div style={styles.chartContainer}>
-            <Chart
-              chartId={2}
-              data={[]}
-              currentPrice={gameState?.stock_b.price || 0}
-            />
+            <Chart currentPrice={gameState?.stock_b.price || 0} />
           </div>
         </div>
       </div>

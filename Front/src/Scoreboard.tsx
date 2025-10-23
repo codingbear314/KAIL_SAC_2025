@@ -6,9 +6,9 @@ interface ScoreboardProps {
   players: Record<string, PlayerState>;
   currentPriceA: number;
   currentPriceB: number;
-  stockASymbol: string;
-  stockBSymbol: string;
 }
+
+const PLAYER_ORDER = ['Player 1', 'Player 2'];
 
 const Scoreboard: React.FC<ScoreboardProps> = ({
   leaderboard,
@@ -16,69 +16,60 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
   currentPriceA,
   currentPriceB
 }) => {
-  const formatCurrency = (value: number) => {
-    return `$${Math.floor(value).toLocaleString()}`;
+  const formatCurrency = (value: number) => `$${Math.floor(value).toLocaleString()}`;
+  
+  const calculateFundValue = (shares: number, price: number, cashValue: number) => {
+    return shares > 0 ? shares * price : cashValue;
   };
 
-  // Fixed player order: Player 1, Player 2, Player 3, then AI agents
-  const fixedPlayerOrder = ['Player 1', 'Player 2'];
   const aiPlayers = leaderboard.filter(entry => entry.type === 'ai');
-  
-  const chartPrices = {
-    1: currentPriceA,
-    2: currentPriceB,
-  };
 
   return (
     <div style={styles.container}>
       <div style={styles.scoreboardList}>
-        {/* Display fixed players first */}
-        {fixedPlayerOrder.map((playerId, index) => {
+        {/* Human Players */}
+        {PLAYER_ORDER.map((playerId, index) => {
           const player = players[playerId];
           if (!player) return null;
 
+          const fundAValue = calculateFundValue(
+            player.fund_a.shares,
+            currentPriceA,
+            player.fund_a.value
+          );
+          const fundBValue = calculateFundValue(
+            player.fund_b.shares,
+            currentPriceB,
+            player.fund_b.value
+          );
+
           return (
-            <div
-              key={playerId}
-              style={styles.playerCard}
-            >
+            <div key={playerId} style={styles.playerCard}>
               <div style={styles.playerHeader}>
-                <div style={{...styles.rankText, color: '#1a1a1a'}}>
-                  #{index + 1}
-                </div>
-                <div style={styles.playerName}>
-                  {playerId}
-                </div>
+                <div style={styles.rankText}>#{index + 1}</div>
+                <div style={styles.playerName}>{playerId}</div>
               </div>
 
-              <div style={styles.chartsGrid}>
-                {/* Chart A */}
-                <div
-                  style={{
-                    ...styles.chartCell,
-                    ...(player.fund_a.shares > 0 ? styles.stockValue : styles.cashValue)
-                  }}
-                >
-                  {formatCurrency(player.fund_a.shares > 0 
-                    ? player.fund_a.shares * chartPrices[1] 
-                    : player.fund_a.value)}
+              <div style={styles.fundsGrid}>
+                {/* Fund A */}
+                <div style={{
+                  ...styles.fundValue,
+                  ...(player.fund_a.shares > 0 ? styles.inStock : styles.inCash)
+                }}>
+                  {formatCurrency(fundAValue)}
                 </div>
-                <div style={styles.sharesCell}>
+                <div style={styles.shares}>
                   {player.fund_a.shares > 0 ? `${player.fund_a.shares.toFixed(2)}sh` : '-'}
                 </div>
 
-                {/* Chart B */}
-                <div
-                  style={{
-                    ...styles.chartCell,
-                    ...(player.fund_b.shares > 0 ? styles.stockValue : styles.cashValue)
-                  }}
-                >
-                  {formatCurrency(player.fund_b.shares > 0 
-                    ? player.fund_b.shares * chartPrices[2] 
-                    : player.fund_b.value)}
+                {/* Fund B */}
+                <div style={{
+                  ...styles.fundValue,
+                  ...(player.fund_b.shares > 0 ? styles.inStock : styles.inCash)
+                }}>
+                  {formatCurrency(fundBValue)}
                 </div>
-                <div style={styles.sharesCell}>
+                <div style={styles.shares}>
                   {player.fund_b.shares > 0 ? `${player.fund_b.shares.toFixed(2)}sh` : '-'}
                 </div>
               </div>
@@ -86,19 +77,12 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
           );
         })}
 
-        {/* Display AI players after */}
+        {/* AI Players */}
         {aiPlayers.map((entry, index) => (
-          <div
-            key={entry.player_id}
-            style={styles.playerCard}
-          >
+          <div key={entry.player_id} style={styles.playerCard}>
             <div style={styles.playerHeader}>
-              <div style={{...styles.rankText, color: '#1a1a1a'}}>
-                #{fixedPlayerOrder.length + index + 1}
-              </div>
-              <div style={styles.playerName}>
-                🤖 AI Agent
-              </div>
+              <div style={styles.rankText}>#{PLAYER_ORDER.length + index + 1}</div>
+              <div style={styles.playerName}>🤖 AI Agent</div>
             </div>
             <div style={styles.aiNetworth}>
               Total: {formatCurrency(entry.networth)}
@@ -120,15 +104,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '12px',
   },
   playerCard: {
-    border: '3px solid',
-    borderRadius: '0',
+    border: '3px solid #2a2a2a',
     padding: '10px',
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
     backgroundColor: '#fefcf7',
     boxShadow: '6px 6px 0 rgba(0, 0, 0, 0.15)',
-    position: 'relative',
   },
   playerHeader: {
     display: 'flex',
@@ -140,8 +122,8 @@ const styles: { [key: string]: React.CSSProperties } = {
   rankText: {
     fontWeight: 'bold',
     fontSize: '20px',
-    flexShrink: 0,
     fontFamily: "'Georgia', serif",
+    color: '#1a1a1a',
   },
   playerName: {
     fontWeight: 'bold',
@@ -152,16 +134,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     textTransform: 'uppercase',
     letterSpacing: '1px',
   },
-  chartsGrid: {
+  fundsGrid: {
     display: 'grid',
     gridTemplateColumns: '2fr 1fr',
     gridTemplateRows: '1fr 1fr',
     gap: '5px',
   },
-  chartCell: {
-    backgroundColor: 'transparent',
-    border: 'none',
-    borderRadius: '0',
+  fundValue: {
     padding: '5px',
     display: 'flex',
     alignItems: 'center',
@@ -170,25 +149,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 'bold',
     textAlign: 'center',
     fontFamily: "'Courier New', monospace",
-  },
-  cashValue: {
     color: '#1a1a1a',
   },
-  stockValue: {
-    color: '#1a1a1a',
+  inCash: {},
+  inStock: {
     textDecoration: 'underline',
     textDecorationStyle: 'double',
   },
-  sharesCell: {
-    backgroundColor: 'transparent',
-    border: 'none',
-    borderRadius: '0',
+  shares: {
     padding: '5px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '14px',
-    fontWeight: 'normal',
     textAlign: 'center',
     color: '#4a4a4a',
     fontFamily: "'Courier New', monospace",
