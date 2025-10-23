@@ -16,8 +16,6 @@ export interface PlayerState {
     value: number;
   };
   networth: number;
-  current_chart_a: number;
-  current_chart_b: number;
 }
 
 export interface LeaderboardEntry {
@@ -126,16 +124,6 @@ export const useSocket = () => {
     }
   };
 
-  const navigateChart = (fund: 'a' | 'b', direction: 'next' | 'prev') => {
-    if (socket) {
-      socket.emit('navigate_chart', {
-        player_id: playerId,
-        fund,
-        direction
-      });
-    }
-  };
-
   const getGameState = () => {
     if (socket) {
       socket.emit('get_game_state');
@@ -150,7 +138,6 @@ export const useSocket = () => {
     joinGame,
     startGame,
     playerAction,
-    navigateChart,
     getGameState
   };
 };

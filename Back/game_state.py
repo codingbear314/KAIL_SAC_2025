@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 class Fund:
     cash: float
     shares: float = 0.0
-    stock_symbol: str = ""
 
     def get_value(self, current_price: float) -> float:
         return self.cash + (self.shares * current_price)
@@ -31,8 +30,6 @@ class Player:
     player_id: str
     fund_a: Fund
     fund_b: Fund
-    current_chart_a: int = 0
-    current_chart_b: int = 0
 
     def get_total_networth(self, price_a: float, price_b: float) -> float:
         return self.fund_a.get_value(price_a) + self.fund_b.get_value(price_b)
@@ -50,9 +47,7 @@ class Player:
                 'shares': self.fund_b.shares,
                 'value': self.fund_b.get_value(price_b)
             },
-            'networth': self.get_total_networth(price_a, price_b),
-            'current_chart_a': self.current_chart_a,
-            'current_chart_b': self.current_chart_b
+            'networth': self.get_total_networth(price_a, price_b)
         }
 
 
@@ -65,7 +60,6 @@ class GameState:
         self.current_tick: int = 0
         self.current_price_a: float = 0.0
         self.current_price_b: float = 0.0
-        self.ai_networth: float = 0.0
         self.game_running: bool = False
 
     def add_player(self, player_id: str) -> Player:
@@ -86,10 +80,9 @@ class GameState:
         self.stock_a_symbol = stock_a
         self.stock_b_symbol = stock_b
 
-    def update_prices(self, price_a: float, price_b: float, ai_networth: float):
+    def update_prices(self, price_a: float, price_b: float):
         self.current_price_a = price_a
         self.current_price_b = price_b
-        self.ai_networth = ai_networth
         self.current_tick += 1
 
     def get_leaderboard(self) -> List[dict]:
@@ -129,11 +122,8 @@ class GameState:
         self.current_tick = 0
         self.current_price_a = 0.0
         self.current_price_b = 0.0
-        self.ai_networth = 0.0
         self.game_running = False
 
         for player in self.players.values():
             player.fund_a = Fund(cash=self.initial_cash / 2)
             player.fund_b = Fund(cash=self.initial_cash / 2)
-            player.current_chart_a = 0
-            player.current_chart_b = 0

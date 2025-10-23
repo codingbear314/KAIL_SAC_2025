@@ -44,7 +44,3 @@ class StockDataLoader:
 
         row = df.iloc[tick_index]
         return (float(row['price']), str(row['action']), float(row['networth']))
-
-    def get_stock_length(self, stock_symbol: str) -> int:
-        df = self.get_stock_data(stock_symbol)
-        return len(df)

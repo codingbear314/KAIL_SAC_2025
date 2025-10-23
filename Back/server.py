@@ -21,7 +21,6 @@ GAME_DURATION_SECONDS = 180  # 3 minutes
 MAX_TICKS = TICK_RATE * GAME_DURATION_SECONDS  # 15 Hz * 180 sec = 2700 ticks
 
 game_loop_task = None
-available_stocks = []
 
 
 def get_random_stocks():
@@ -34,36 +33,29 @@ def get_random_stocks():
 def game_loop():
     while game_state.game_running:
         try:
-            price_a, action_a, networth_a = stock_loader.get_tick_data(
+            price_a, action_a, _ = stock_loader.get_tick_data(
                 game_state.stock_a_symbol,
                 game_state.current_tick
             )
-            price_b, action_b, networth_b = stock_loader.get_tick_data(
+            price_b, action_b, _ = stock_loader.get_tick_data(
                 game_state.stock_b_symbol,
                 game_state.current_tick
             )
 
-            # Update prices first
-            game_state.update_prices(price_a, price_b, 0)
+            game_state.update_prices(price_a, price_b)
 
-            # Execute AI actions from CSV
+            # Execute AI actions
             ai_player = game_state.get_player('AI')
             if ai_player:
-                # Execute action for fund A
                 if action_a == 'buy':
                     ai_player.fund_a.all_in(price_a)
                 elif action_a == 'sell':
                     ai_player.fund_a.all_out(price_a)
                 
-                # Execute action for fund B
                 if action_b == 'buy':
                     ai_player.fund_b.all_in(price_b)
                 elif action_b == 'sell':
                     ai_player.fund_b.all_out(price_b)
-                
-                # Calculate AI networth from actual holdings
-                ai_networth = ai_player.get_total_networth(price_a, price_b)
-                game_state.ai_networth = ai_networth
 
             state_update = game_state.get_state_dict()
             socketio.emit('game_update', state_update)
@@ -71,6 +63,7 @@ def game_loop():
             # Stop after 3 minutes (2700 ticks at 15 Hz)
             if game_state.current_tick >= MAX_TICKS - 1:
                 game_state.game_running = False
+                print("Game ended!")
                 socketio.emit('game_over', {
                     'final_state': state_update,
                     'leaderboard': game_state.get_leaderboard()
@@ -129,6 +122,8 @@ def handle_start_game(data):
         game_state.reset()
         game_state.game_running = True
 
+        print("Game started!")
+        
         emit('game_started', {
             'stock_a': stock_a,
             'stock_b': stock_b,
@@ -175,35 +170,6 @@ def handle_player_action(data):
         emit('action_failed', {
             'message': f'Action {action} failed for fund {fund}'
         })
-
-
-@socketio.on('navigate_chart')
-def handle_navigate_chart(data):
-    player_id = data.get('player_id', request.sid)
-    fund = data.get('fund')
-    direction = data.get('direction')
-
-    player = game_state.get_player(player_id)
-    if not player:
-        emit('error', {'message': 'Player not found'})
-        return
-
-    if fund == 'a':
-        if direction == 'next':
-            player.current_chart_a += 1
-        elif direction == 'prev':
-            player.current_chart_a = max(0, player.current_chart_a - 1)
-    elif fund == 'b':
-        if direction == 'next':
-            player.current_chart_b += 1
-        elif direction == 'prev':
-            player.current_chart_b = max(0, player.current_chart_b - 1)
-
-    emit('chart_navigated', {
-        'player_id': player_id,
-        'fund': fund,
-        'chart_index': player.current_chart_a if fund == 'a' else player.current_chart_b
-    })
 
 
 @socketio.on('get_available_stocks')
