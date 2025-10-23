@@ -47,14 +47,14 @@ def game_loop():
             # Execute AI actions
             ai_player = game_state.get_player('AI')
             if ai_player:
-                if action_a == 'buy':
+                if action_a == 'Buy':
                     ai_player.fund_a.all_in(price_a)
-                elif action_a == 'sell':
+                elif action_a == 'Sell':
                     ai_player.fund_a.all_out(price_a)
                 
-                if action_b == 'buy':
+                if action_b == 'Buy':
                     ai_player.fund_b.all_in(price_b)
-                elif action_b == 'sell':
+                elif action_b == 'Sell':
                     ai_player.fund_b.all_out(price_b)
 
             state_update = game_state.get_state_dict()
