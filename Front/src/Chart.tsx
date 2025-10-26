@@ -12,7 +12,7 @@ interface Candle {
 }
 
 const CANDLE_INTERVAL_MS = 500;
-const MAX_CANDLES = 100;
+const MAX_CANDLES = 30;
 const GRID_LINES = 5;
 const CHART_PADDING = 0.1;
 
@@ -83,8 +83,13 @@ const Chart: React.FC<ChartProps> = ({ currentPrice }) => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Include current candle in the display
+    const allCandles = currentCandle.current 
+      ? [...candles, currentCandle.current]
+      : candles;
+
     // Calculate price range
-    const prices = candles.flatMap(c => [c.high, c.low]);
+    const prices = allCandles.flatMap(c => [c.high, c.low]);
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
     const priceRange = maxPrice - minPrice;
@@ -114,11 +119,11 @@ const Chart: React.FC<ChartProps> = ({ currentPrice }) => {
     }
 
     // Calculate candle dimensions
-    const candleWidth = Math.max(2, Math.floor((canvas.width - 40) / candles.length) - 2);
-    const spacing = Math.floor((canvas.width - 40) / candles.length);
+    const candleWidth = Math.max(2, Math.floor((canvas.width - 40) / allCandles.length) - 2);
+    const spacing = Math.floor((canvas.width - 40) / allCandles.length);
 
     // Draw each candle
-    candles.forEach((candle, index) => {
+    allCandles.forEach((candle, index) => {
       const x = 20 + index * spacing + spacing / 2;
       const openY = priceToY(candle.open);
       const closeY = priceToY(candle.close);
