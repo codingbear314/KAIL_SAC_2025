@@ -17,7 +17,7 @@ stock_loader = StockDataLoader()
 
 TICK_RATE = 15
 TICK_INTERVAL = 1.0 / TICK_RATE
-GAME_DURATION_SECONDS = 180  # 3 minutes
+GAME_DURATION_SECONDS = 5  # 3 minutes
 MAX_TICKS = TICK_RATE * GAME_DURATION_SECONDS  # 15 Hz * 180 sec = 2700 ticks
 
 game_loop_task = None
@@ -64,8 +64,10 @@ def game_loop():
             if game_state.current_tick >= MAX_TICKS - 1:
                 game_state.game_running = False
                 print("Game ended!")
+                # Get state AFTER setting game_running to False
+                final_state = game_state.get_state_dict()
                 socketio.emit('game_over', {
-                    'final_state': state_update,
+                    'final_state': final_state,
                     'leaderboard': game_state.get_leaderboard()
                 })
 

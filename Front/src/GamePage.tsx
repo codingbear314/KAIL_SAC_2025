@@ -24,7 +24,7 @@ const CONTROLS: Record<string, { player: string; fund: 'a' | 'b'; action: 'all_i
 const GamePage: React.FC = () => {
   const {
     connected,
-    gameState,
+    gameState: serverGameState,
     playerId,
     joinGame,
     startGame,
@@ -32,7 +32,7 @@ const GamePage: React.FC = () => {
   } = useSocket();
 
   const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION);
-  const [gameStatus, setGameStatus] = useState<'prepare' | 'playing' | 'ended'>('prepare');
+  const [clientGameState, setClientGameStatus] = useState<'prepare' | 'playing' | 'ended'>('prepare');
 
   useEffect(() => {
     if (connected && playerId) {
@@ -40,31 +40,23 @@ const GamePage: React.FC = () => {
     }
   }, [connected, playerId]);
 
-  // Calculate time remaining based on server tick
+  // Game timer management
   useEffect(() => {
-    // Only respond to game state changes when in prepare or playing states
-    // Ended state is manually controlled
-    if (gameStatus === 'ended') return;
+    if (clientGameState === 'ended') return;
     
-    if (gameState?.game_running && gameState.current_tick !== undefined) {
-      const ticksRemaining = Math.max(0, MAX_TICKS - gameState.current_tick);
+    if (serverGameState?.game_running && serverGameState.current_tick !== undefined) {
+      const ticksRemaining = Math.max(0, MAX_TICKS - serverGameState.current_tick);
       const secondsRemaining = Math.floor(ticksRemaining / TICK_RATE);
       setTimeRemaining(secondsRemaining);
-      
-      // Transition from prepare to playing when game starts
-      if (gameStatus === 'prepare') {
-        setGameStatus('playing');
+
+      if (clientGameState === 'prepare') {
+        console.log('Game has started');
+        setClientGameStatus('playing');
       }
-      
-      // Transition from playing to ended when timer reaches 0
-      if (secondsRemaining === 0 && gameStatus === 'playing') {
-        setGameStatus('ended');
-      }
-    } else if (!gameState?.game_running && gameStatus === 'playing') {
-      // Game stopped unexpectedly while playing - transition to ended
-      setGameStatus('ended');
+    } else if (!serverGameState?.game_running && clientGameState === 'playing') {
+      setClientGameStatus('ended');
     }
-  }, [gameState?.current_tick, gameState?.game_running, gameStatus]);
+  }, [serverGameState?.current_tick, serverGameState?.game_running, clientGameState]);
 
   // Format timer as MM:SS
   const formatTime = (seconds: number): string => {
@@ -76,7 +68,7 @@ const GamePage: React.FC = () => {
   // Handle keyboard controls
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (!gameState?.game_running) return;
+      if (!serverGameState?.game_running) return;
 
       const control = CONTROLS[event.key.toLowerCase()];
       if (control) {
@@ -86,7 +78,7 @@ const GamePage: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [gameState?.game_running, playerAction]);
+  }, [serverGameState?.game_running, playerAction]);
 
   const handleStartGame = () => {
     // Don't change status here - let the useEffect handle it when game actually starts
@@ -94,25 +86,26 @@ const GamePage: React.FC = () => {
   };
 
   const handlePlayAgain = () => {
-    setGameStatus('prepare');
     setTimeRemaining(GAME_DURATION);
+    console.log('Preparing for new game');
+    setClientGameStatus('prepare');
   };
 
   return (
     <div style={styles.container}>
-      {gameStatus === 'prepare' && (
+      {clientGameState === 'prepare' && (
         <GameOverlay
-          onStartGame={handleStartGame}
+          overlayBtn={handleStartGame}
           isGameOver={false}
           leaderboard={undefined}
         />
       )}
       
-      {gameStatus === 'ended' && (
+      {clientGameState === 'ended' && (
         <GameOverlay
-          onStartGame={handlePlayAgain}
+          overlayBtn={handlePlayAgain}
           isGameOver={true}
-          leaderboard={gameState?.leaderboard}
+          leaderboard={serverGameState?.leaderboard}
         />
       )}
 
@@ -122,12 +115,12 @@ const GamePage: React.FC = () => {
           <div style={styles.timer}>{formatTime(timeRemaining)}</div>
         </div>
 
-        {gameState && (
+        {serverGameState && (
           <Scoreboard
-            leaderboard={gameState.leaderboard}
-            players={gameState.players}
-            currentPriceA={gameState.stock_a.price}
-            currentPriceB={gameState.stock_b.price}
+            leaderboard={serverGameState.leaderboard}
+            players={serverGameState.players}
+            currentPriceA={serverGameState.stock_a.price}
+            currentPriceB={serverGameState.stock_b.price}
           />
         )}
       </div>
@@ -135,10 +128,10 @@ const GamePage: React.FC = () => {
       <div style={styles.mainContent}>
         <div style={styles.chartsGrid}>
           <div style={styles.chartContainer}>
-            <Chart currentPrice={gameState?.stock_a.price || 0} />
+            <Chart currentPrice={serverGameState?.stock_a.price || 0} />
           </div>
           <div style={styles.chartContainer}>
-            <Chart currentPrice={gameState?.stock_b.price || 0} />
+            <Chart currentPrice={serverGameState?.stock_b.price || 0} />
           </div>
         </div>
       </div>
