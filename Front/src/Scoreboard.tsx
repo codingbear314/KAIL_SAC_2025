@@ -53,7 +53,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
             ? player.fund_b.shares * currentPriceB 
             : player.fund_b.value;
 
-          const displayName = playerId === 'AI' ? '🤖 AI Agent' : playerId;
+          const displayName = playerId === 'AI' ? 'AI Agent' : playerId;
 
           return (
             <div key={playerId} style={styles.playerCard}>

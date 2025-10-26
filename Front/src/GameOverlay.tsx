@@ -5,12 +5,12 @@ import React from 'react';
 import type { LeaderboardEntry } from './hooks/useSocket';
 
 interface GameOverlayProps {
-  onStartGame: () => void;
+  overlayBtn: () => void;
   isGameOver: boolean;
   leaderboard?: LeaderboardEntry[];
 }
 
-const GameOverlay: React.FC<GameOverlayProps> = ({ onStartGame, isGameOver, leaderboard }) => {
+const GameOverlay: React.FC<GameOverlayProps> = ({ overlayBtn, isGameOver, leaderboard }) => {
   return (
     <div style={styles.overlay}>
       <div style={styles.content}>
@@ -25,7 +25,7 @@ const GameOverlay: React.FC<GameOverlayProps> = ({ onStartGame, isGameOver, lead
                     <div key={entry.player_id} style={styles.leaderboardEntry}>
                       <span style={styles.rank}>#{index + 1}</span>
                       <span style={styles.playerName}>
-                        {entry.player_id === 'AI' ? '🤖 AI Agent' : entry.player_id}
+                        {entry.player_id === 'AI' ? 'AI Agent' : entry.player_id}
                       </span>
                       <span style={styles.networth}>
                         ${Math.floor(entry.networth).toLocaleString()}
@@ -37,7 +37,7 @@ const GameOverlay: React.FC<GameOverlayProps> = ({ onStartGame, isGameOver, lead
             )}
           </>
         )}
-        <button onClick={onStartGame} style={styles.startButton}>
+        <button onClick={overlayBtn} style={styles.startButton}>
           {isGameOver ? 'Play Again' : 'Start Game'}
         </button>
       </div>
