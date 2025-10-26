@@ -17,7 +17,7 @@ stock_loader = StockDataLoader()
 
 TICK_RATE = 15
 TICK_INTERVAL = 1.0 / TICK_RATE
-GAME_DURATION_SECONDS = 5  # 3 minutes
+GAME_DURATION_SECONDS = 180  # 3 minutes
 MAX_TICKS = TICK_RATE * GAME_DURATION_SECONDS  # 15 Hz * 180 sec = 2700 ticks
 
 game_loop_task = None
