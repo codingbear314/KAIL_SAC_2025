@@ -7,10 +7,9 @@
 ```
 
 # TODO:
-fix candle
-
 make tutorial
-game end screen fix + leaderboard
+
+leaderboard (for one game / entire duration (implement this on server and save it as a file in case of server down.))
 
 # ??
 $1000 buy sell?

@@ -32,7 +32,7 @@ const GamePage: React.FC = () => {
   } = useSocket();
 
   const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION);
-  const [showGameOver, setShowGameOver] = useState(false);
+  const [gameStatus, setGameStatus] = useState<'prepare' | 'playing' | 'ended'>('prepare');
 
   useEffect(() => {
     if (connected && playerId) {
@@ -42,20 +42,29 @@ const GamePage: React.FC = () => {
 
   // Calculate time remaining based on server tick
   useEffect(() => {
+    // Only respond to game state changes when in prepare or playing states
+    // Ended state is manually controlled
+    if (gameStatus === 'ended') return;
+    
     if (gameState?.game_running && gameState.current_tick !== undefined) {
       const ticksRemaining = Math.max(0, MAX_TICKS - gameState.current_tick);
       const secondsRemaining = Math.floor(ticksRemaining / TICK_RATE);
       setTimeRemaining(secondsRemaining);
       
-      // Show game over when timer reaches 0
-      if (secondsRemaining === 0 && !showGameOver) {
-        setShowGameOver(true);
+      // Transition from prepare to playing when game starts
+      if (gameStatus === 'prepare') {
+        setGameStatus('playing');
       }
-    } else if (!gameState?.game_running) {
-      setTimeRemaining(GAME_DURATION);
-      setShowGameOver(false);
+      
+      // Transition from playing to ended when timer reaches 0
+      if (secondsRemaining === 0 && gameStatus === 'playing') {
+        setGameStatus('ended');
+      }
+    } else if (!gameState?.game_running && gameStatus === 'playing') {
+      // Game stopped unexpectedly while playing - transition to ended
+      setGameStatus('ended');
     }
-  }, [gameState?.current_tick, gameState?.game_running, showGameOver]);
+  }, [gameState?.current_tick, gameState?.game_running, gameStatus]);
 
   // Format timer as MM:SS
   const formatTime = (seconds: number): string => {
@@ -80,15 +89,30 @@ const GamePage: React.FC = () => {
   }, [gameState?.game_running, playerAction]);
 
   const handleStartGame = () => {
+    // Don't change status here - let the useEffect handle it when game actually starts
     startGame();
+  };
+
+  const handlePlayAgain = () => {
+    setGameStatus('prepare');
+    setTimeRemaining(GAME_DURATION);
   };
 
   return (
     <div style={styles.container}>
-      {(!gameState?.game_running || showGameOver) && (
+      {gameStatus === 'prepare' && (
         <GameOverlay
           onStartGame={handleStartGame}
-          isGameOver={showGameOver}
+          isGameOver={false}
+          leaderboard={undefined}
+        />
+      )}
+      
+      {gameStatus === 'ended' && (
+        <GameOverlay
+          onStartGame={handlePlayAgain}
+          isGameOver={true}
+          leaderboard={gameState?.leaderboard}
         />
       )}
 
