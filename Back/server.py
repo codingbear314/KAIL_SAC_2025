@@ -25,9 +25,9 @@ game_loop_task = None
 
 def get_random_stocks():
     stocks = stock_loader.get_available_stocks()
-    if len(stocks) < 2:
-        raise ValueError("Need at least 2 stock CSV files")
-    return random.sample(stocks, 2)
+    if len(stocks) < 1:
+        raise ValueError("Need at least 1 stock CSV file")
+    return random.choice(stocks)
 
 
 def game_loop():
@@ -37,12 +37,8 @@ def game_loop():
                 game_state.stock_a_symbol,
                 game_state.current_tick
             )
-            price_b, action_b, _ = stock_loader.get_tick_data(
-                game_state.stock_b_symbol,
-                game_state.current_tick
-            )
 
-            game_state.update_prices(price_a, price_b)
+            game_state.update_prices(price_a)
 
             # Execute AI actions
             ai_player = game_state.get_player('AI')
@@ -51,11 +47,6 @@ def game_loop():
                     ai_player.fund_a.all_in(price_a)
                 elif action_a == 'Sell':
                     ai_player.fund_a.all_out(price_a)
-                
-                if action_b == 'Buy':
-                    ai_player.fund_b.all_in(price_b)
-                elif action_b == 'Sell':
-                    ai_player.fund_b.all_out(price_b)
 
             state_update = game_state.get_state_dict()
             socketio.emit('game_update', state_update)
@@ -92,9 +83,17 @@ def handle_disconnect():
 
 @socketio.on('join_game')
 def handle_join_game(data):
-    game_state.add_player('AI')  # Add AI as a player
-    game_state.add_player('Player 1')
-    game_state.add_player('Player 2')
+    # Add AI and 4 human players
+    if 'AI' not in game_state.players:
+        game_state.add_player('AI')
+    if 'Player 1' not in game_state.players:
+        game_state.add_player('Player 1')
+    if 'Player 2' not in game_state.players:
+        game_state.add_player('Player 2')
+    if 'Player 3' not in game_state.players:
+        game_state.add_player('Player 3')
+    if 'Player 4' not in game_state.players:
+        game_state.add_player('Player 4')
 
     emit('player_joined', {
         'initial_state': game_state.get_state_dict()
@@ -110,17 +109,13 @@ def handle_start_game(data):
         return
 
     stock_a = data.get('stock_a')
-    stock_b = data.get('stock_b')
 
-    if not stock_a or not stock_b:
-        stocks = get_random_stocks()
-        stock_a = stocks[0]
-        stock_b = stocks[1]
+    if not stock_a:
+        stock_a = get_random_stocks()
 
     try:
         stock_loader.load_stock(stock_a)
-        stock_loader.load_stock(stock_b)
-        game_state.set_stocks(stock_a, stock_b)
+        game_state.set_stocks(stock_a)
         game_state.reset()
         game_state.game_running = True
 
@@ -128,7 +123,6 @@ def handle_start_game(data):
         
         emit('game_started', {
             'stock_a': stock_a,
-            'stock_b': stock_b,
             'initial_state': game_state.get_state_dict()
         }, broadcast=True)
 
@@ -155,18 +149,13 @@ def handle_player_action(data):
             success = player.fund_a.all_in(game_state.current_price_a)
         elif action == 'all_out':
             success = player.fund_a.all_out(game_state.current_price_a)
-    elif fund == 'b':
-        if action == 'all_in':
-            success = player.fund_b.all_in(game_state.current_price_b)
-        elif action == 'all_out':
-            success = player.fund_b.all_out(game_state.current_price_b)
 
     if success:
         emit('action_success', {
             'player_id': player_id,
             'fund': fund,
             'action': action,
-            'player_state': player.to_dict(game_state.current_price_a, game_state.current_price_b)
+            'player_state': player.to_dict(game_state.current_price_a)
         }, broadcast=True)
     else:
         emit('action_failed', {

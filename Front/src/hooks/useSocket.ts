@@ -10,11 +10,6 @@ export interface PlayerState {
     shares: number;
     value: number;
   };
-  fund_b: {
-    cash: number;
-    shares: number;
-    value: number;
-  };
   networth: number;
 }
 
@@ -27,10 +22,6 @@ export interface LeaderboardEntry {
 export interface GameState {
   current_tick: number;
   stock_a: {
-    symbol: string;
-    price: number;
-  };
-  stock_b: {
     symbol: string;
     price: number;
   };
@@ -108,13 +99,13 @@ export const useSocket = () => {
     }
   };
 
-  const startGame = (stockA?: string, stockB?: string) => {
+  const startGame = (stockA?: string) => {
     if (socket) {
-      socket.emit('start_game', { stock_a: stockA, stock_b: stockB });
+      socket.emit('start_game', { stock_a: stockA });
     }
   };
 
-  const playerAction = (playerId: string, fund: 'a' | 'b', action: 'all_in' | 'all_out') => {
+  const playerAction = (playerId: string, fund: 'a', action: 'all_in' | 'all_out') => {
     if (socket) {
       socket.emit('player_action', {
         player_id: playerId,

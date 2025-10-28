@@ -29,12 +29,11 @@ class Fund:
 class Player:
     player_id: str
     fund_a: Fund
-    fund_b: Fund
 
-    def get_total_networth(self, price_a: float, price_b: float) -> float:
-        return self.fund_a.get_value(price_a) + self.fund_b.get_value(price_b)
+    def get_total_networth(self, price_a: float) -> float:
+        return self.fund_a.get_value(price_a)
 
-    def to_dict(self, price_a: float, price_b: float) -> dict:
+    def to_dict(self, price_a: float) -> dict:
         return {
             'player_id': self.player_id,
             'fund_a': {
@@ -42,12 +41,7 @@ class Player:
                 'shares': self.fund_a.shares,
                 'value': self.fund_a.get_value(price_a)
             },
-            'fund_b': {
-                'cash': self.fund_b.cash,
-                'shares': self.fund_b.shares,
-                'value': self.fund_b.get_value(price_b)
-            },
-            'networth': self.get_total_networth(price_a, price_b)
+            'networth': self.get_total_networth(price_a)
         }
 
 
@@ -56,16 +50,13 @@ class GameState:
         self.initial_cash = initial_cash
         self.players: Dict[str, Player] = {}
         self.stock_a_symbol: str = ""
-        self.stock_b_symbol: str = ""
         self.current_tick: int = 0
         self.current_price_a: float = 0.0
-        self.current_price_b: float = 0.0
         self.game_running: bool = False
 
     def add_player(self, player_id: str) -> Player:
-        fund_a = Fund(cash=self.initial_cash / 2)
-        fund_b = Fund(cash=self.initial_cash / 2)
-        player = Player(player_id=player_id, fund_a=fund_a, fund_b=fund_b)
+        fund_a = Fund(cash=self.initial_cash)
+        player = Player(player_id=player_id, fund_a=fund_a)
         self.players[player_id] = player
         return player
 
@@ -76,13 +67,11 @@ class GameState:
     def get_player(self, player_id: str) -> Player:
         return self.players.get(player_id)
 
-    def set_stocks(self, stock_a: str, stock_b: str):
+    def set_stocks(self, stock_a: str):
         self.stock_a_symbol = stock_a
-        self.stock_b_symbol = stock_b
 
-    def update_prices(self, price_a: float, price_b: float):
+    def update_prices(self, price_a: float):
         self.current_price_a = price_a
-        self.current_price_b = price_b
         self.current_tick += 1
 
     def get_leaderboard(self) -> List[dict]:
@@ -92,7 +81,7 @@ class GameState:
             player_type = 'ai' if player_id == 'AI' else 'human'
             leaderboard.append({
                 'player_id': player_id,
-                'networth': player.get_total_networth(self.current_price_a, self.current_price_b),
+                'networth': player.get_total_networth(self.current_price_a),
                 'type': player_type
             })
 
@@ -106,12 +95,8 @@ class GameState:
                 'symbol': self.stock_a_symbol,
                 'price': self.current_price_a
             },
-            'stock_b': {
-                'symbol': self.stock_b_symbol,
-                'price': self.current_price_b
-            },
             'players': {
-                pid: player.to_dict(self.current_price_a, self.current_price_b)
+                pid: player.to_dict(self.current_price_a)
                 for pid, player in self.players.items()
             },
             'leaderboard': self.get_leaderboard(),
@@ -121,9 +106,7 @@ class GameState:
     def reset(self):
         self.current_tick = 0
         self.current_price_a = 0.0
-        self.current_price_b = 0.0
         self.game_running = False
 
         for player in self.players.values():
-            player.fund_a = Fund(cash=self.initial_cash / 2)
-            player.fund_b = Fund(cash=self.initial_cash / 2)
+            player.fund_a = Fund(cash=self.initial_cash)

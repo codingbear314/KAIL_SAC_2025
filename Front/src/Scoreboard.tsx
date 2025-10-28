@@ -5,15 +5,13 @@ interface ScoreboardProps {
   leaderboard: LeaderboardEntry[];
   players: Record<string, PlayerState>;
   currentPriceA: number;
-  currentPriceB: number;
 }
 
-const DISPLAY_ORDER = ['AI', 'Player 1', 'Player 2'];
+const DISPLAY_ORDER = ['AI', 'Player 1', 'Player 2', 'Player 3', 'Player 4'];
 
 const Scoreboard: React.FC<ScoreboardProps> = ({
   players,
-  currentPriceA,
-  currentPriceB
+  currentPriceA
 }) => {
   const formatCurrency = (value: number) => `$${Math.floor(value).toLocaleString()}`;
   
@@ -25,10 +23,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
       const fundAValue = player.fund_a.shares > 0 
         ? player.fund_a.shares * currentPriceA 
         : player.fund_a.value;
-      const fundBValue = player.fund_b.shares > 0 
-        ? player.fund_b.shares * currentPriceB 
-        : player.fund_b.value;
-      networthMap[playerId] = fundAValue + fundBValue;
+      networthMap[playerId] = fundAValue;
     }
   });
 
@@ -49,9 +44,6 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
           const fundAValue = player.fund_a.shares > 0 
             ? player.fund_a.shares * currentPriceA 
             : player.fund_a.value;
-          const fundBValue = player.fund_b.shares > 0 
-            ? player.fund_b.shares * currentPriceB 
-            : player.fund_b.value;
 
           const displayName = playerId === 'AI' ? 'AI Agent' : playerId;
 
@@ -62,8 +54,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                 <div style={styles.playerName}>{displayName}</div>
               </div>
 
-              <div style={styles.fundsGrid}>
-                {/* Fund A */}
+              <div style={styles.fundInfo}>
                 <div style={{
                   ...styles.fundValue,
                   ...(player.fund_a.shares > 0 ? styles.inStock : styles.inCash)
@@ -72,17 +63,6 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                 </div>
                 <div style={styles.shares}>
                   {player.fund_a.shares > 0 ? `${player.fund_a.shares.toFixed(2)}sh` : '-'}
-                </div>
-
-                {/* Fund B */}
-                <div style={{
-                  ...styles.fundValue,
-                  ...(player.fund_b.shares > 0 ? styles.inStock : styles.inCash)
-                }}>
-                  {formatCurrency(fundBValue)}
-                </div>
-                <div style={styles.shares}>
-                  {player.fund_b.shares > 0 ? `${player.fund_b.shares.toFixed(2)}sh` : '-'}
                 </div>
               </div>
             </div>
@@ -137,6 +117,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'grid',
     gridTemplateColumns: '2fr 1fr',
     gridTemplateRows: '1fr 1fr',
+    gap: '5px',
+  },
+  fundInfo: {
+    display: 'flex',
+    flexDirection: 'column',
     gap: '5px',
   },
   fundValue: {

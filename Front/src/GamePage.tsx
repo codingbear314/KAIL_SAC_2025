@@ -9,16 +9,16 @@ const GAME_DURATION = 180; // 3 minutes
 const TICK_RATE = 15; // Server tick rate (Hz)
 const MAX_TICKS = TICK_RATE * GAME_DURATION; // 2700 ticks
 
-// Keyboard controls mapping
-const CONTROLS: Record<string, { player: string; fund: 'a' | 'b'; action: 'all_in' | 'all_out' }> = {
+// Keyboard controls mapping - 4 players, 1 fund each
+const CONTROLS: Record<string, { player: string; fund: 'a'; action: 'all_in' | 'all_out' }> = {
   'q': { player: 'Player 1', fund: 'a', action: 'all_in' },
   'w': { player: 'Player 1', fund: 'a', action: 'all_out' },
-  'e': { player: 'Player 1', fund: 'b', action: 'all_in' },
-  'r': { player: 'Player 1', fund: 'b', action: 'all_out' },
-  't': { player: 'Player 2', fund: 'a', action: 'all_in' },
-  'y': { player: 'Player 2', fund: 'a', action: 'all_out' },
-  'u': { player: 'Player 2', fund: 'b', action: 'all_in' },
-  'i': { player: 'Player 2', fund: 'b', action: 'all_out' },
+  'e': { player: 'Player 2', fund: 'a', action: 'all_in' },
+  'r': { player: 'Player 2', fund: 'a', action: 'all_out' },
+  't': { player: 'Player 3', fund: 'a', action: 'all_in' },
+  'y': { player: 'Player 3', fund: 'a', action: 'all_out' },
+  'u': { player: 'Player 4', fund: 'a', action: 'all_in' },
+  'i': { player: 'Player 4', fund: 'a', action: 'all_out' },
 };
 
 const GamePage: React.FC = () => {
@@ -120,18 +120,14 @@ const GamePage: React.FC = () => {
             leaderboard={serverGameState.leaderboard}
             players={serverGameState.players}
             currentPriceA={serverGameState.stock_a.price}
-            currentPriceB={serverGameState.stock_b.price}
           />
         )}
       </div>
 
       <div style={styles.mainContent}>
         <div style={styles.chartsGrid}>
-          <div style={styles.chartContainer}>
+          <div style={{...styles.chartContainer, padding: '20px'}}>
             <Chart currentPrice={serverGameState?.stock_a.price || 0} />
-          </div>
-          <div style={styles.chartContainer}>
-            <Chart currentPrice={serverGameState?.stock_b.price || 0} />
           </div>
         </div>
       </div>
