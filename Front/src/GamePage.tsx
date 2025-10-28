@@ -3,6 +3,7 @@ import Chart from './Chart';
 import Scoreboard from './Scoreboard';
 import GameOverlay from './GameOverlay';
 import { useSocket } from './hooks/useSocket';
+import { useSounds } from './hooks/useSounds';
 import './App.css';
 
 const GAME_DURATION = 180; // 3 minutes
@@ -30,6 +31,8 @@ const GamePage: React.FC = () => {
     startGame,
     playerAction
   } = useSocket();
+
+  const { playBuySound, playSellSound } = useSounds();
 
   const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION);
   const [clientGameState, setClientGameStatus] = useState<'prepare' | 'playing' | 'ended'>('prepare');
@@ -73,13 +76,35 @@ const GamePage: React.FC = () => {
 
       const control = CONTROLS[event.key.toLowerCase()];
       if (control) {
+        // Check if action will succeed before playing sound
+        const player = serverGameState.players[control.player];
+        if (!player) return;
+
+        let willSucceed = false;
+        if (control.action === 'all_in') {
+          // Can only buy if has cash
+          willSucceed = player.fund_a.cash > 0;
+        } else if (control.action === 'all_out') {
+          // Can only sell if has shares
+          willSucceed = player.fund_a.shares > 0;
+        }
+
+        // Only play sound if action will succeed
+        if (willSucceed) {
+          if (control.action === 'all_in') {
+            playBuySound();
+          } else if (control.action === 'all_out') {
+            playSellSound();
+          }
+        }
+        
         playerAction(control.player, control.fund, control.action);
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [serverGameState?.game_running, playerAction]);
+  }, [serverGameState?.game_running, playerAction, playBuySound, playSellSound]);
 
   const handleStartGame = () => {
     // Trigger chart reset when starting game
