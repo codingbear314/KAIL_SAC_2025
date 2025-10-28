@@ -33,6 +33,7 @@ const GamePage: React.FC = () => {
 
   const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION);
   const [clientGameState, setClientGameStatus] = useState<'prepare' | 'playing' | 'ended'>('prepare');
+  const [chartResetSignal, setChartResetSignal] = useState<number>(0);
 
   useEffect(() => {
     if (connected && playerId) {
@@ -81,7 +82,8 @@ const GamePage: React.FC = () => {
   }, [serverGameState?.game_running, playerAction]);
 
   const handleStartGame = () => {
-    // Don't change status here - let the useEffect handle it when game actually starts
+    // Trigger chart reset when starting game
+    setChartResetSignal(Date.now());
     startGame();
   };
 
@@ -127,7 +129,10 @@ const GamePage: React.FC = () => {
       <div style={styles.mainContent}>
         <div style={styles.chartsGrid}>
           <div style={{...styles.chartContainer, padding: '20px'}}>
-            <Chart currentPrice={serverGameState?.stock_a.price || 0} />
+            <Chart 
+              currentPrice={serverGameState?.stock_a.price || 0}
+              resetSignal={chartResetSignal}
+            />
           </div>
         </div>
       </div>

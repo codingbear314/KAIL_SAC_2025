@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 interface ChartProps {
   currentPrice: number;
+  resetSignal?: number; // Timestamp or counter to trigger reset
 }
 
 interface Candle {
@@ -9,6 +10,7 @@ interface Candle {
   high: number;
   low: number;
   close: number;
+  invisible?: boolean; // For padding candles
 }
 
 const CANDLE_INTERVAL_MS = 500;
@@ -16,7 +18,7 @@ const MAX_CANDLES = 30;
 const GRID_LINES = 5;
 const CHART_PADDING = 0.1;
 
-const Chart: React.FC<ChartProps> = ({ currentPrice }) => {
+const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -37,6 +39,26 @@ const Chart: React.FC<ChartProps> = ({ currentPrice }) => {
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
+
+  // Reset chart when resetSignal changes (button pressed)
+  useEffect(() => {
+    if (resetSignal) {
+      // Clear old candles and add invisible padding candles
+      const paddingCandles: Candle[] = [];
+      for (let i = 0; i < MAX_CANDLES - 1; i++) {
+        paddingCandles.push({
+          open: 0,
+          high: 0,
+          low: 0,
+          close: 0,
+          invisible: true
+        });
+      }
+      setCandles(paddingCandles);
+      currentCandle.current = null;
+      lastCandleTime.current = 0;
+    }
+  }, [resetSignal]);
 
   // Build candles from price updates
   useEffect(() => {
@@ -88,8 +110,11 @@ const Chart: React.FC<ChartProps> = ({ currentPrice }) => {
       ? [...candles, currentCandle.current]
       : candles;
 
-    // Calculate price range
-    const prices = allCandles.flatMap(c => [c.high, c.low]);
+    // Calculate price range (only from visible candles)
+    const visibleCandles = allCandles.filter(c => !c.invisible);
+    if (visibleCandles.length === 0) return;
+    
+    const prices = visibleCandles.flatMap(c => [c.high, c.low]);
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
     const priceRange = maxPrice - minPrice;
@@ -124,6 +149,9 @@ const Chart: React.FC<ChartProps> = ({ currentPrice }) => {
 
     // Draw each candle
     allCandles.forEach((candle, index) => {
+      // Skip rendering invisible padding candles
+      if (candle.invisible) return;
+
       const x = 20 + index * spacing + spacing / 2;
       const openY = priceToY(candle.open);
       const closeY = priceToY(candle.close);
