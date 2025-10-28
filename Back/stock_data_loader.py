@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple
 
 
 class StockDataLoader:
-    def __init__(self, stock_data_path: str = "../Front/src/Stock_Data"):
+    def __init__(self, stock_data_path: str = "./Stock_Data"):
         self.stock_data_path = stock_data_path
         self.loaded_stocks: Dict[str, pd.DataFrame] = {}
 
