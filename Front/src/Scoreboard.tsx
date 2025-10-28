@@ -62,7 +62,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                   {formatCurrency(fundAValue)}
                 </div>
                 <div style={styles.shares}>
-                  {player.fund_a.shares > 0 ? `${player.fund_a.shares.toFixed(2)}sh` : '-'}
+                  {player.fund_a.shares > 0 ? `${Math.round(player.fund_a.shares)}sh` : '-'}
                 </div>
               </div>
             </div>
@@ -121,8 +121,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   fundInfo: {
     display: 'flex',
-    flexDirection: 'column',
-    gap: '5px',
+    flexDirection: 'row',
+    gap: '10px',
+    alignItems: 'center',
   },
   fundValue: {
     padding: '5px',
@@ -144,12 +145,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '5px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     fontSize: '14px',
-    textAlign: 'center',
+    textAlign: 'right',
     color: '#4a4a4a',
     fontFamily: "'Courier New', monospace",
     fontStyle: 'italic',
+    marginLeft: 'auto',
   },
 };
 
