@@ -126,10 +126,10 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
     };
 
     // Draw grid lines and price labels
-    ctx.strokeStyle = 'rgba(42, 42, 42, 0.1)';
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
     ctx.lineWidth = 1;
-    ctx.fillStyle = '#4a4a4a';
-    ctx.font = '11px Courier New';
+    ctx.fillStyle = '#00ffff';
+    ctx.font = 'bold 12px Courier New';
     ctx.textAlign = 'right';
 
     for (let i = 0; i <= GRID_LINES; i++) {
@@ -160,39 +160,101 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
       const isBullish = candle.close >= candle.open;
 
       // Draw wick
-      ctx.strokeStyle = isBullish ? '#2d6a2d' : '#8b0000';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = isBullish ? '#0099ff' : '#ff6600';
+      ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(x, highY);
       ctx.lineTo(x, lowY);
       ctx.stroke();
 
-      // Draw body
+      // Draw body with gradient
       const bodyTop = Math.min(openY, closeY);
       const bodyHeight = Math.abs(closeY - openY) || 1;
       
+      // Validate gradient coordinates
+      if (!isFinite(bodyTop) || !isFinite(bodyHeight) || !isFinite(x) || !isFinite(candleWidth)) {
+        return; // Skip this candle if coordinates are invalid
+      }
+      
       if (isBullish) {
-        ctx.strokeStyle = '#2d6a2d';
-        ctx.fillStyle = '#fefcf7';
+        // Blue halftone for up
+        ctx.fillStyle = '#0066ff';
         ctx.fillRect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
-        ctx.strokeRect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
+        
+        // Add lighter dots with gradually changing size for halftone effect
+        ctx.fillStyle = '#00ccff';
+        const dotSpacing = 3;
+        // Ensure we stay within bounds
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
+        ctx.clip();
+        
+        for (let dy = 0; dy < bodyHeight; dy += dotSpacing) {
+          for (let dx = 0; dx < candleWidth; dx += dotSpacing) {
+            // Gradually change dot size based on vertical position
+            const progress = dy / bodyHeight;
+            const dotSize = 0.5 + progress * 2; // Range from 0.5 to 2.5
+            ctx.beginPath();
+            ctx.arc(
+              x - candleWidth / 2 + dx + ((Math.floor(dy / dotSpacing) % 2) * (dotSpacing / 2)),
+              bodyTop + dy,
+              dotSize,
+              0,
+              Math.PI * 2
+            );
+            ctx.fill();
+          }
+        }
+        ctx.restore();
       } else {
-        ctx.fillStyle = '#8b0000';
+        // Orange halftone for down
+        ctx.fillStyle = '#ff6600';
         ctx.fillRect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
+        
+        // Add lighter dots with gradually changing size for halftone effect
+        ctx.fillStyle = '#ff9933';
+        const dotSpacing = 3;
+        // Ensure we stay within bounds
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
+        ctx.clip();
+        
+        for (let dy = 0; dy < bodyHeight; dy += dotSpacing) {
+          for (let dx = 0; dx < candleWidth; dx += dotSpacing) {
+            // Gradually change dot size based on vertical position
+            const progress = dy / bodyHeight;
+            const dotSize = 0.5 + progress * 2; // Range from 0.5 to 2.5
+            ctx.beginPath();
+            ctx.arc(
+              x - candleWidth / 2 + dx + ((Math.floor(dy / dotSpacing) % 2) * (dotSpacing / 2)),
+              bodyTop + dy,
+              dotSize,
+              0,
+              Math.PI * 2
+            );
+            ctx.fill();
+          }
+        }
+        ctx.restore();
       }
     });
 
     // Draw current price line
     if (currentPrice > 0) {
       const priceY = priceToY(currentPrice);
-      ctx.strokeStyle = '#1a1a1a';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ff00ff';
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#ff00ff';
       ctx.setLineDash([5, 5]);
       ctx.beginPath();
       ctx.moveTo(0, priceY);
       ctx.lineTo(canvas.width - 60, priceY);
       ctx.stroke();
       ctx.setLineDash([]);
+      ctx.shadowBlur = 0;
     }
   }, [candles, currentPrice, dimensions]);
 
@@ -219,8 +281,8 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   chartArea: {
     flex: 1,
-    backgroundColor: '#fefcf7',
-    border: '3px double #2a2a2a',
+    backgroundColor: '#0a0e27',
+    border: '3px solid #00ffff',
     borderRadius: '0',
     display: 'flex',
     alignItems: 'center',
@@ -228,20 +290,21 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: '200px',
     position: 'relative',
     overflow: 'hidden',
+    boxShadow: '0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 40px rgba(0, 20, 40, 0.8)',
     backgroundImage: `
       repeating-linear-gradient(
         90deg,
         transparent,
-        transparent 50px,
-        rgba(42,42,42,0.05) 50px,
-        rgba(42,42,42,0.05) 51px
+        transparent 40px,
+        rgba(0,255,255,0.03) 40px,
+        rgba(0,255,255,0.03) 41px
       ),
       repeating-linear-gradient(
         0deg,
         transparent,
-        transparent 50px,
-        rgba(42,42,42,0.05) 50px,
-        rgba(42,42,42,0.05) 51px
+        transparent 40px,
+        rgba(0,255,255,0.03) 40px,
+        rgba(0,255,255,0.03) 41px
       )
     `,
   },
