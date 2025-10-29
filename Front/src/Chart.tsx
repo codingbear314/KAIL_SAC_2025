@@ -287,8 +287,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: '200px',
     position: 'relative',
     overflow: 'hidden',
-    boxShadow: 'inset 0 0 40px rgba(0, 20, 40, 0.8)',
+    boxShadow: 'inset 0 0 40px rgba(0, 20, 40, 0.8), inset 0 -30px 50px rgba(0, 0, 0, 0.5)',
     backgroundImage: `
+      radial-gradient(ellipse at top left, rgba(138, 43, 226, 0.05) 0%, transparent 50%),
       repeating-linear-gradient(
         90deg,
         transparent,

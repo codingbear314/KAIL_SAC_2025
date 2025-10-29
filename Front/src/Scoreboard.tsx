@@ -132,10 +132,6 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
 
           const displayName = playerId === 'AI' ? 'AI Agent' : playerId;
 
-          // Different rotation angles for each card
-          const rotations = [1.5, -2, 1, -1.5, 2];
-          const rotation = rotations[index % rotations.length];
-
           const baseColors = [
             '#1a0044', // Darkest purple (background)
             '#330033', // Darkest magenta
@@ -162,12 +158,16 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
 
           // Extra emphasis for first place
           const isFirst = rankMap[playerId] === 1;
+          
+          // Check if player just made a trade (has stocks)
+          const hasStocks = player.fund_a.shares > 0;
 
           return (
             <div key={playerId} style={{
               ...styles.playerCard,
-              transform: `rotate(${rotation}deg) ${isFirst ? 'scale(1.02)' : 'scale(1)'}`,
+              transform: isFirst ? 'scale(1.05)' : 'scale(1)',
               zIndex: isFirst ? 10 : 1,
+              animation: hasStocks ? 'pulse-glow 0.5s ease-out' : 'none',
             }}>
               <HalftoneBox 
                 baseColor={baseColors[index % baseColors.length]}
@@ -238,23 +238,26 @@ const styles: { [key: string]: React.CSSProperties } = {
   scoreboardList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
+    gap: '18px',
     padding: '10px 0',
   },
   playerCard: {
     padding: '12px 12px 12px 18px',
     display: 'flex',
     flexDirection: 'column',
+    border: '2px solid rgba(255, 255, 255, 0.15)',
+    borderRadius: '8px',
     boxShadow: `
-      0 6px 20px rgba(0, 0, 0, 0.4),
+      0 8px 25px rgba(0, 0, 0, 0.5),
       inset 0 0 30px rgba(255, 255, 255, 0.1),
-      0 0 0 2px rgba(0, 0, 0, 0.5)
+      inset -3px -3px 10px rgba(0, 0, 0, 0.4),
+      inset 3px 3px 10px rgba(255, 255, 255, 0.05),
+      0 0 20px rgba(138, 43, 226, 0.2)
     `,
     position: 'relative',
     backdropFilter: 'blur(10px)',
     overflow: 'hidden',
-    transition: 'all 0.2s ease',
-    cursor: 'pointer',
+    transition: 'all 0.3s ease',
   },
   cardContent: {
     position: 'relative',
