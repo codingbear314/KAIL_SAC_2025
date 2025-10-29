@@ -7,9 +7,6 @@ interface ScoreboardProps {
   currentPriceA: number;
 }
 
-// This will be filtered based on actual players in the game
-const DISPLAY_ORDER = ['AI', 'Player 1', 'Player 2', 'Player 3', 'Player 4'];
-
 // Halftone canvas component
 const HalftoneBox: React.FC<{ 
   baseColor: string; 
@@ -101,8 +98,13 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
 }) => {
   const formatCurrency = (value: number) => `$${Math.floor(value).toLocaleString()}`;
   
-  // Get list of actual players in the game (filter out those who don't exist)
-  const activePlayers = DISPLAY_ORDER.filter(playerId => players[playerId]);
+  // Get list of actual players in the game from the players object
+  // Always show AI first, then other players in order
+  const activePlayers = Object.keys(players).sort((a, b) => {
+    if (a === 'AI') return -1;
+    if (b === 'AI') return 1;
+    return a.localeCompare(b);
+  });
   
   // Calculate networth for all active players
   const networthMap: Record<string, number> = {};

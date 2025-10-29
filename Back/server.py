@@ -37,22 +37,25 @@ def save_game_results_to_global(leaderboard):
     try:
         global_leaderboard = load_global_leaderboard()
         timestamp = datetime.now().isoformat()
-        
+
         for entry in leaderboard:
             global_leaderboard.append({
                 'player_id': entry['player_id'],
                 'networth': entry['networth'],
                 'timestamp': timestamp
             })
-        
+
         # Sort by networth (descending) and keep only top 100
         global_leaderboard.sort(key=lambda x: x['networth'], reverse=True)
         global_leaderboard = global_leaderboard[:100]
-        
+
         save_global_leaderboard(global_leaderboard)
         print(f"Saved {len(leaderboard)} results to global leaderboard")
+        # Return the current top 10 for immediate use
+        return global_leaderboard[:10]
     except Exception as e:
         print(f"Error saving to global leaderboard: {e}")
+        return None
 
 def load_global_leaderboard():
     if os.path.exists(LEADERBOARD_FILE):
@@ -101,12 +104,13 @@ def game_loop():
                 final_state = game_state.get_state_dict()
                 leaderboard = game_state.get_leaderboard()
                 
-                # Save results to global leaderboard
-                save_game_results_to_global(leaderboard)
-                
+                # Save results to global leaderboard and get updated top-10
+                updated_global_top10 = save_game_results_to_global(leaderboard)
+
                 socketio.emit('game_over', {
                     'final_state': final_state,
-                    'leaderboard': leaderboard
+                    'leaderboard': leaderboard,
+                    'global_top10': updated_global_top10
                 })
 
         except Exception as e:

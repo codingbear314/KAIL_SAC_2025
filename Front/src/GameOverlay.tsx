@@ -9,6 +9,7 @@ interface GameOverlayProps {
   isGameOver: boolean;
   leaderboard?: LeaderboardEntry[];
   onPlayerConfigChange?: (config: PlayerConfig) => void;
+  latestGlobalTop10?: any[] | null;
 }
 
 export interface PlayerConfig {
@@ -20,7 +21,8 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
   overlayBtn, 
   isGameOver, 
   leaderboard,
-  onPlayerConfigChange 
+  onPlayerConfigChange,
+  latestGlobalTop10
 }) => {
   const [numPlayers, setNumPlayers] = useState(4);
   const [playerNames, setPlayerNames] = useState(['Player 1', 'Player 2', 'Player 3', 'Player 4']);
@@ -52,15 +54,20 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
     overlayBtn();
   };
 
-  // Fetch global leaderboard when game ends
+  // Use latestGlobalTop10 if provided via socket payload, otherwise fetch when game ends
   React.useEffect(() => {
-    if (isGameOver) {
-      fetch('http://localhost:5001/api/leaderboard/global')
-        .then(res => res.json())
-        .then(data => setGlobalLeaderboard(data))
-        .catch(err => console.error('Failed to fetch global leaderboard:', err));
+    if (!isGameOver) return;
+
+    if ((latestGlobalTop10 as any) && (latestGlobalTop10 as any).length > 0) {
+      setGlobalLeaderboard(latestGlobalTop10 as any);
+      return;
     }
-  }, [isGameOver]);
+
+    fetch('http://localhost:5001/api/leaderboard/global')
+      .then(res => res.json())
+      .then(data => setGlobalLeaderboard(data))
+      .catch(err => console.error('Failed to fetch global leaderboard:', err));
+  }, [isGameOver, (latestGlobalTop10 as any)]);
   return (
     <div style={styles.overlay}>
       <div style={styles.content}>
@@ -207,8 +214,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '40px',
-    padding: '60px 70px',
+    gap: '28px',
+    padding: '42px 49px',
     backgroundColor: 'rgba(10, 14, 39, 0.85)',
     border: '3px solid rgba(255, 0, 255, 0.5)',
     borderRadius: '12px',
@@ -218,8 +225,9 @@ const styles: { [key: string]: React.CSSProperties } = {
       inset 0 0 60px rgba(0, 0, 0, 0.5)
     `,
     backdropFilter: 'blur(15px)',
-    maxWidth: '1200px',
+    maxWidth: '840px',
     width: '90%',
+    transform: 'scale(0.7)',
   },
   startScreenLayout: {
     display: 'flex',

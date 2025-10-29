@@ -34,6 +34,7 @@ export const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [gameState, setGameState] = useState<GameState | null>(null);
+  const [latestGlobalTop10, setLatestGlobalTop10] = useState<any[] | null>(null);
   const [playerId, setPlayerId] = useState<string>('');
 
   useEffect(() => {
@@ -65,6 +66,9 @@ export const useSocket = () => {
     socketInstance.on('game_over', (data: any) => {
       console.log('Game over:', data);
       setGameState(data.final_state);
+      if (data.global_top10) {
+        setLatestGlobalTop10(data.global_top10);
+      }
     });
 
     socketInstance.on('player_joined', (data: any) => {
@@ -129,6 +133,7 @@ export const useSocket = () => {
     socket,
     connected,
     gameState,
+  latestGlobalTop10,
     playerId,
     joinGame,
     startGame,

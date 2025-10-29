@@ -31,6 +31,7 @@ const GamePage: React.FC = () => {
   const {
     connected,
     gameState: serverGameState,
+  latestGlobalTop10,
     playerId,
     joinGame,
     startGame,
@@ -44,12 +45,12 @@ const GamePage: React.FC = () => {
   const [chartResetSignal, setChartResetSignal] = useState<number>(0);
   const [playerConfig, setPlayerConfig] = useState<PlayerConfig | null>(null);
 
-  useEffect(() => {
-    if (connected && playerId && playerConfig) {
-      // Join with configured players
-      joinGame(playerConfig);
-    }
-  }, [connected, playerId, playerConfig]);
+  // Don't auto-join when config changes - wait for explicit start
+  // useEffect(() => {
+  //   if (connected && playerId && playerConfig) {
+  //     joinGame(playerConfig);
+  //   }
+  // }, [connected, playerId, playerConfig]);
 
   // Game timer management
   useEffect(() => {
@@ -123,6 +124,10 @@ const GamePage: React.FC = () => {
   }, [serverGameState?.game_running, serverGameState?.players, playerAction, playBuySound, playSellSound, playerConfig]);
 
   const handleStartGame = () => {
+    // Join game with current player configuration before starting
+    if (playerConfig && connected && playerId) {
+      joinGame(playerConfig);
+    }
     // Trigger chart reset when starting game
     setChartResetSignal(Date.now());
     startGame();
@@ -148,6 +153,7 @@ const GamePage: React.FC = () => {
           isGameOver={false}
           leaderboard={undefined}
           onPlayerConfigChange={handlePlayerConfigChange}
+          latestGlobalTop10={latestGlobalTop10}
         />
       )}
       
@@ -156,6 +162,7 @@ const GamePage: React.FC = () => {
           overlayBtn={handlePlayAgain}
           isGameOver={true}
           leaderboard={serverGameState?.leaderboard}
+          latestGlobalTop10={latestGlobalTop10}
         />
       )}
 
