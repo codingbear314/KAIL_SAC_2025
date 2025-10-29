@@ -93,9 +93,13 @@ export const useSocket = () => {
     };
   }, []);
 
-  const joinGame = (playerIdOverride?: string) => {
+  const joinGame = (playerConfig?: { numPlayers: number; playerNames: string[] }) => {
     if (socket) {
-      socket.emit('join_game', { player_id: playerIdOverride || playerId });
+      socket.emit('join_game', { 
+        player_id: playerId,
+        numPlayers: playerConfig?.numPlayers || 4,
+        playerNames: playerConfig?.playerNames || ['Player 1', 'Player 2', 'Player 3', 'Player 4']
+      });
     }
   };
 

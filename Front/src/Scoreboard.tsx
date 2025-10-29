@@ -7,6 +7,7 @@ interface ScoreboardProps {
   currentPriceA: number;
 }
 
+// This will be filtered based on actual players in the game
 const DISPLAY_ORDER = ['AI', 'Player 1', 'Player 2', 'Player 3', 'Player 4'];
 
 // Halftone canvas component
@@ -100,9 +101,12 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
 }) => {
   const formatCurrency = (value: number) => `$${Math.floor(value).toLocaleString()}`;
   
-  // Calculate networth for all players
+  // Get list of actual players in the game (filter out those who don't exist)
+  const activePlayers = DISPLAY_ORDER.filter(playerId => players[playerId]);
+  
+  // Calculate networth for all active players
   const networthMap: Record<string, number> = {};
-  DISPLAY_ORDER.forEach(playerId => {
+  activePlayers.forEach(playerId => {
     const player = players[playerId];
     if (player) {
       const fundAValue = player.fund_a.shares > 0 
@@ -122,7 +126,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
   return (
     <div style={styles.container}>
       <div style={styles.scoreboardList}>
-        {DISPLAY_ORDER.map((playerId, index) => {
+        {activePlayers.map((playerId, index) => {
           const player = players[playerId];
           if (!player) return null;
 
@@ -214,12 +218,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     position: 'relative',
   },
   headerText: {
-    fontSize: '32px',
-    fontWeight: 900,
-    fontFamily: "'Impact', 'Arial Black', sans-serif",
+    fontSize: '20px',
+    fontWeight: 'normal',
+    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
     color: '#00ffff',
     textTransform: 'uppercase',
-    letterSpacing: '3px',
+    letterSpacing: '2px',
     textShadow: `
       0 0 20px rgba(0, 255, 255, 0.8),
       0 0 10px rgba(0, 255, 255, 0.6),
@@ -272,9 +276,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '12px',
   },
   rankText: {
-    fontWeight: 900,
-    fontSize: '36px',
-    fontFamily: "'Impact', 'Arial Black', sans-serif",
+    fontWeight: 'normal',
+    fontSize: '24px',
+    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
     color: '#fff',
     textTransform: 'uppercase',
     textShadow: `
@@ -285,7 +289,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     minWidth: '70px',
   },
   firstPlaceRank: {
-    fontSize: '42px',
+    fontSize: '28px',
     color: '#ffd700',
     textShadow: `
       0 0 20px rgba(255, 215, 0, 1),
@@ -295,26 +299,26 @@ const styles: { [key: string]: React.CSSProperties } = {
     `,
   },
   playerName: {
-    fontWeight: 'bold',
-    fontSize: '20px',
+    fontWeight: 'normal',
+    fontSize: '12px',
     color: '#fff',
     flex: 1,
-    fontFamily: "'Impact', 'Arial Black', sans-serif",
+    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
     textTransform: 'uppercase',
-    letterSpacing: '1.5px',
+    letterSpacing: '1px',
     textShadow: '3px 3px 6px rgba(0, 0, 0, 0.8)',
   },
   sharesText: {
-    fontSize: '26px',
-    fontWeight: 'bold',
-    fontFamily: "'Courier New', monospace",
+    fontSize: '16px',
+    fontWeight: 'normal',
+    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
     color: '#fff',
     textShadow: '0 0 10px rgba(255, 255, 255, 0.7), 2px 2px 4px rgba(0, 0, 0, 0.8)',
     minWidth: '80px',
     textAlign: 'right',
   },
   sharesLabel: {
-    fontSize: '14px',
+    fontSize: '10px',
     opacity: 0.9,
     marginLeft: '3px',
   },
@@ -325,9 +329,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     paddingTop: '6px',
   },
   networthText: {
-    fontSize: '28px',
-    fontWeight: 'bold',
-    fontFamily: "'Courier New', monospace",
+    fontSize: '16px',
+    fontWeight: 'normal',
+    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
     color: '#fff',
     textShadow: '0 0 10px rgba(255, 255, 255, 0.7), 3px 3px 6px rgba(0, 0, 0, 0.8)',
   },

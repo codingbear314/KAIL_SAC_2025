@@ -1,10 +1,16 @@
+# TODO: (Someday) "Update backend join_game to use custom player names from config" 
+
+
 import eventlet
 eventlet.monkey_patch()
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import random
+import json
+import os
+from datetime import datetime
 from stock_data_loader import StockDataLoader
 from game_state import GameState
 
@@ -21,6 +27,42 @@ GAME_DURATION_SECONDS = 180  # 3 minutes
 MAX_TICKS = TICK_RATE * GAME_DURATION_SECONDS  # 15 Hz * 180 sec = 2700 ticks
 
 game_loop_task = None
+
+
+# REST API endpoints for leaderboard
+LEADERBOARD_FILE = 'global_leaderboard.json'
+
+def save_game_results_to_global(leaderboard):
+    """Automatically save game results to global leaderboard"""
+    try:
+        global_leaderboard = load_global_leaderboard()
+        timestamp = datetime.now().isoformat()
+        
+        for entry in leaderboard:
+            global_leaderboard.append({
+                'player_id': entry['player_id'],
+                'networth': entry['networth'],
+                'timestamp': timestamp
+            })
+        
+        # Sort by networth (descending) and keep only top 100
+        global_leaderboard.sort(key=lambda x: x['networth'], reverse=True)
+        global_leaderboard = global_leaderboard[:100]
+        
+        save_global_leaderboard(global_leaderboard)
+        print(f"Saved {len(leaderboard)} results to global leaderboard")
+    except Exception as e:
+        print(f"Error saving to global leaderboard: {e}")
+
+def load_global_leaderboard():
+    if os.path.exists(LEADERBOARD_FILE):
+        with open(LEADERBOARD_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_global_leaderboard(leaderboard):
+    with open(LEADERBOARD_FILE, 'w') as f:
+        json.dump(leaderboard, f, indent=2)
 
 
 def get_random_stocks():
@@ -57,9 +99,14 @@ def game_loop():
                 print("Game ended!")
                 # Get state AFTER setting game_running to False
                 final_state = game_state.get_state_dict()
+                leaderboard = game_state.get_leaderboard()
+                
+                # Save results to global leaderboard
+                save_game_results_to_global(leaderboard)
+                
                 socketio.emit('game_over', {
                     'final_state': final_state,
-                    'leaderboard': game_state.get_leaderboard()
+                    'leaderboard': leaderboard
                 })
 
         except Exception as e:
@@ -83,17 +130,22 @@ def handle_disconnect():
 
 @socketio.on('join_game')
 def handle_join_game(data):
-    # Add AI and 4 human players
-    if 'AI' not in game_state.players:
-        game_state.add_player('AI')
-    if 'Player 1' not in game_state.players:
-        game_state.add_player('Player 1')
-    if 'Player 2' not in game_state.players:
-        game_state.add_player('Player 2')
-    if 'Player 3' not in game_state.players:
-        game_state.add_player('Player 3')
-    if 'Player 4' not in game_state.players:
-        game_state.add_player('Player 4')
+    # Clear all existing players first (to handle renamed players)
+    game_state.players.clear()
+    
+    # Add AI first
+    game_state.add_player('AI')
+    
+    # Add players based on configuration
+    player_names = data.get('playerNames', ['Player 1', 'Player 2', 'Player 3', 'Player 4'])
+    num_players = data.get('numPlayers', 4)
+    
+    # Add the configured number of players
+    for i in range(num_players):
+        player_name = player_names[i] if i < len(player_names) else f'Player {i + 1}'
+        game_state.add_player(player_name)
+    
+    print(f"Added {num_players} players: {player_names[:num_players]}")
 
     emit('player_joined', {
         'initial_state': game_state.get_state_dict()
@@ -172,6 +224,84 @@ def handle_get_available_stocks():
 @socketio.on('get_game_state')
 def handle_get_game_state():
     emit('game_state', game_state.get_state_dict())
+
+
+# REST API endpoints for leaderboard
+LEADERBOARD_FILE = 'global_leaderboard.json'
+
+def save_game_results_to_global(leaderboard):
+    """Automatically save game results to global leaderboard"""
+    try:
+        global_leaderboard = load_global_leaderboard()
+        timestamp = datetime.now().isoformat()
+        
+        for entry in leaderboard:
+            global_leaderboard.append({
+                'player_id': entry['player_id'],
+                'networth': entry['networth'],
+                'timestamp': timestamp
+            })
+        
+        # Sort by networth (descending) and keep only top 100
+        global_leaderboard.sort(key=lambda x: x['networth'], reverse=True)
+        global_leaderboard = global_leaderboard[:100]
+        
+        save_global_leaderboard(global_leaderboard)
+        print(f"Saved {len(leaderboard)} results to global leaderboard")
+    except Exception as e:
+        print(f"Error saving to global leaderboard: {e}")
+
+def load_global_leaderboard():
+    """Load the global leaderboard from file"""
+    if os.path.exists(LEADERBOARD_FILE):
+        with open(LEADERBOARD_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_global_leaderboard(leaderboard):
+    """Save the global leaderboard to file"""
+    with open(LEADERBOARD_FILE, 'w') as f:
+        json.dump(leaderboard, f, indent=2)
+
+@app.route('/api/leaderboard/save', methods=['POST'])
+def save_game_result():
+    """Save game results to global leaderboard"""
+    try:
+        data = request.json
+        player_results = data.get('results', [])
+        
+        # Load existing leaderboard
+        global_leaderboard = load_global_leaderboard()
+        
+        # Add new results with timestamp
+        timestamp = datetime.now().isoformat()
+        for result in player_results:
+            global_leaderboard.append({
+                'player_id': result['player_id'],
+                'networth': result['networth'],
+                'timestamp': timestamp
+            })
+        
+        # Sort by networth (descending) and keep only top 100
+        global_leaderboard.sort(key=lambda x: x['networth'], reverse=True)
+        global_leaderboard = global_leaderboard[:100]
+        
+        # Save back to file
+        save_global_leaderboard(global_leaderboard)
+        
+        return jsonify({'success': True, 'message': 'Results saved'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/leaderboard/global', methods=['GET'])
+def get_global_leaderboard():
+    """Get the top 10 global leaderboard"""
+    try:
+        leaderboard = load_global_leaderboard()
+        # Return top 10
+        return jsonify(leaderboard[:10])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':

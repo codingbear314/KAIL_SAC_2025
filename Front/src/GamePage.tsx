@@ -10,6 +10,11 @@ const GAME_DURATION = 180; // 3 minutes
 const TICK_RATE = 15; // Server tick rate (Hz)
 const MAX_TICKS = TICK_RATE * GAME_DURATION; // 2700 ticks
 
+interface PlayerConfig {
+  numPlayers: number;
+  playerNames: string[];
+}
+
 // Keyboard controls mapping - 4 players, 1 fund each
 const CONTROLS: Record<string, { player: string; fund: 'a'; action: 'all_in' | 'all_out' }> = {
   'q': { player: 'Player 1', fund: 'a', action: 'all_in' },
@@ -37,12 +42,14 @@ const GamePage: React.FC = () => {
   const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION);
   const [clientGameState, setClientGameStatus] = useState<'prepare' | 'playing' | 'ended'>('prepare');
   const [chartResetSignal, setChartResetSignal] = useState<number>(0);
+  const [playerConfig, setPlayerConfig] = useState<PlayerConfig | null>(null);
 
   useEffect(() => {
-    if (connected && playerId) {
-      joinGame();
+    if (connected && playerId && playerConfig) {
+      // Join with configured players
+      joinGame(playerConfig);
     }
-  }, [connected, playerId]);
+  }, [connected, playerId, playerConfig]);
 
   // Game timer management
   useEffect(() => {
@@ -76,35 +83,44 @@ const GamePage: React.FC = () => {
 
       const control = CONTROLS[event.key.toLowerCase()];
       if (control) {
-        // Check if action will succeed before playing sound
-        const player = serverGameState.players[control.player];
-        if (!player) return;
-
-        let willSucceed = false;
-        if (control.action === 'all_in') {
-          // Can only buy if has cash
-          willSucceed = player.fund_a.cash > 0;
-        } else if (control.action === 'all_out') {
-          // Can only sell if has shares
-          willSucceed = player.fund_a.shares > 0;
-        }
-
-        // Only play sound if action will succeed
-        if (willSucceed) {
-          if (control.action === 'all_in') {
-            playBuySound();
-          } else if (control.action === 'all_out') {
-            playSellSound();
+        // Check if player is active (exists in playerConfig)
+        if (playerConfig) {
+          const playerIndex = parseInt(control.player.split(' ')[1]) - 1;
+          if (playerIndex >= playerConfig.numPlayers) {
+            // Player is not active in this game
+            return;
           }
+          // Use the custom player name if available
+          const actualPlayerName = playerConfig.playerNames[playerIndex] || control.player;
+          const player = serverGameState.players[actualPlayerName];
+          if (!player) return;
+
+          let willSucceed = false;
+          if (control.action === 'all_in') {
+            // Can only buy if has cash
+            willSucceed = player.fund_a.cash > 0;
+          } else if (control.action === 'all_out') {
+            // Can only sell if has shares
+            willSucceed = player.fund_a.shares > 0;
+          }
+
+          // Only play sound if action will succeed
+          if (willSucceed) {
+            if (control.action === 'all_in') {
+              playBuySound();
+            } else if (control.action === 'all_out') {
+              playSellSound();
+            }
+          }
+          
+          playerAction(actualPlayerName, control.fund, control.action);
         }
-        
-        playerAction(control.player, control.fund, control.action);
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [serverGameState?.game_running, playerAction, playBuySound, playSellSound]);
+  }, [serverGameState?.game_running, serverGameState?.players, playerAction, playBuySound, playSellSound, playerConfig]);
 
   const handleStartGame = () => {
     // Trigger chart reset when starting game
@@ -112,10 +128,16 @@ const GamePage: React.FC = () => {
     startGame();
   };
 
+  const handlePlayerConfigChange = (config: PlayerConfig) => {
+    console.log('Player configuration:', config);
+    setPlayerConfig(config);
+  };
+
   const handlePlayAgain = () => {
     setTimeRemaining(GAME_DURATION);
     console.log('Preparing for new game');
     setClientGameStatus('prepare');
+    setPlayerConfig(null);
   };
 
   return (
@@ -125,6 +147,7 @@ const GamePage: React.FC = () => {
           overlayBtn={handleStartGame}
           isGameOver={false}
           leaderboard={undefined}
+          onPlayerConfigChange={handlePlayerConfigChange}
         />
       )}
       
@@ -176,7 +199,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: '100vw',
     backgroundColor: '#0a0e27',
     overflow: 'hidden',
-    fontFamily: "'Impact', 'Arial Black', sans-serif",
+    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
     backgroundImage: `
       repeating-linear-gradient(
         0deg,
@@ -214,23 +237,23 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxShadow: '0 0 20px rgba(255, 0, 255, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.5)',
   },
   timerLabel: {
-    fontSize: '20px',
-    fontWeight: 'bold',
+    fontSize: '14px',
+    fontWeight: 'normal',
     color: '#00ffff',
-    letterSpacing: '4px',
+    letterSpacing: '2px',
     marginBottom: '10px',
-    fontFamily: "'Impact', 'Arial Black', sans-serif",
+    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
     textShadow: '0 0 10px #00ffff, 0 0 20px #00ffff',
   },
   timer: {
-    fontSize: '56px',
-    fontWeight: '900',
+    fontSize: '32px',
+    fontWeight: 'normal',
     background: 'linear-gradient(to right, #ff00ff, #00ffff, #ff00ff)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
-    fontFamily: "'Impact', 'Arial Black', sans-serif",
-    letterSpacing: '6px',
+    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    letterSpacing: '4px',
     textShadow: 'none',
     filter: 'drop-shadow(0 0 20px rgba(255, 0, 255, 0.6)) drop-shadow(0 0 10px rgba(0, 255, 255, 0.4))',
   },
