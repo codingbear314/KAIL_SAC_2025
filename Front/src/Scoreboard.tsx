@@ -12,10 +12,11 @@ const DISPLAY_ORDER = ['AI', 'Player 1', 'Player 2', 'Player 3', 'Player 4'];
 // Halftone canvas component
 const HalftoneBox: React.FC<{ 
   baseColor: string; 
-  dotColor: string; 
+  dotColor1: string;
+  dotColor2: string;
   width: number; 
   height: number;
-}> = ({ baseColor, dotColor, width, height }) => {
+}> = ({ baseColor, dotColor1, dotColor2, width, height }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -29,17 +30,17 @@ const HalftoneBox: React.FC<{
     ctx.fillStyle = baseColor;
     ctx.fillRect(0, 0, width, height);
 
-    // Draw halftone dots with gradient size
-    ctx.fillStyle = dotColor;
-    const dotSpacing = 3;
+    // First layer: halftone dots with gradient from top-left to bottom-right
+    ctx.fillStyle = dotColor1;
+    const dotSpacing = 4;
     
     for (let dy = 0; dy < height; dy += dotSpacing) {
       for (let dx = 0; dx < width; dx += dotSpacing) {
-        // Gradually change dot size based on position
+        // Gradually change dot size based on position (top-left to bottom-right)
         const progressY = dy / height;
         const progressX = dx / width;
         const progress = (progressY + progressX) / 2;
-        const dotSize = 0.3 + progress * 1.5; // Range from 0.3 to 1.8
+        const dotSize = 0 + progress * 5; // Range from 0 to 5
         
         ctx.beginPath();
         ctx.arc(
@@ -52,7 +53,29 @@ const HalftoneBox: React.FC<{
         ctx.fill();
       }
     }
-  }, [baseColor, dotColor, width, height]);
+
+    // Second layer: halftone dots starting from diagonal line moving to bottom-right
+    ctx.fillStyle = dotColor2;
+    ctx.globalAlpha = 0.6; // Make second layer slightly transparent
+    for (let dy = 0; dy < height; dy += dotSpacing) {
+      for (let dx = 0; dx < width; dx += dotSpacing) {
+        // Progress based on distance from center diagonal
+        const progress = Math.max(0, (dx - width/2) / width + (dy - height/2) / height);
+        const dotSize = 0 + progress * 8; // Range from 0 to 8
+        
+        ctx.beginPath();
+        ctx.arc(
+          dx + ((Math.floor(dy / dotSpacing) % 2) * (dotSpacing / 2)) + dotSpacing / 3, // Offset position
+          dy + dotSpacing / 3,
+          dotSize,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1.0; // Reset alpha
+  }, [baseColor, dotColor1, dotColor2, width, height]);
 
   return (
     <canvas
@@ -109,62 +132,67 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
 
           const displayName = playerId === 'AI' ? 'AI Agent' : playerId;
 
+          // Different rotation angles for each card
+          const rotations = [1.5, -2, 1, -1.5, 2];
+          const rotation = rotations[index % rotations.length];
+
           const baseColors = [
-            '#667eea', // Purple base
-            '#f093fb', // Pink base
-            '#4facfe', // Cyan base
-            '#43e97b', // Green base
-            '#fa709a', // Orange base
+            '#1a0044', // Darkest purple (background)
+            '#330033', // Darkest magenta
+            '#003344', // Darkest cyan
+            '#004400', // Darkest green
+            '#440022', // Darkest red
           ];
           
-          const dotColors = [
-            '#764ba2', // Purple dots
-            '#f5576c', // Pink dots
-            '#00f2fe', // Cyan dots
-            '#38f9d7', // Green dots
-            '#fee140', // Orange dots
+          const dotColors1 = [
+            '#5500aa', // Medium purple (first layer)
+            '#880088', // Medium magenta
+            '#008899', // Medium cyan
+            '#008800', // Medium green
+            '#880044', // Medium pink
           ];
+          
+          const dotColors2 = [
+            '#8800ff', // Brightest purple (second layer)
+            '#cc00cc', // Reduced magenta
+            '#00cccc', // Reduced cyan
+            '#00cc00', // Reduced green
+            '#ff0088', // Brightest pink
+          ];
+
+          // Extra emphasis for first place
+          const isFirst = rankMap[playerId] === 1;
 
           return (
             <div key={playerId} style={{
               ...styles.playerCard,
+              transform: `rotate(${rotation}deg) ${isFirst ? 'scale(1.02)' : 'scale(1)'}`,
+              zIndex: isFirst ? 10 : 1,
             }}>
               <HalftoneBox 
                 baseColor={baseColors[index % baseColors.length]}
-                dotColor={dotColors[index % dotColors.length]}
-                width={260}
-                height={100}
+                dotColor1={dotColors1[index % dotColors1.length]}
+                dotColor2={dotColors2[index % dotColors2.length]}
+                width={280}
+                height={75}
               />
-              <div style={styles.playerHeader}>
-                <div style={styles.rankText}>#{rankMap[playerId]}</div>
-                <div style={styles.playerName}>{displayName}</div>
-              </div>
-
-              <div style={styles.fundInfo}>
-                <div style={{
-                  ...styles.fundValue,
-                  ...(player.fund_a.shares > 0 ? styles.inStock : styles.inCash)
-                }}>
-                  <HalftoneBox 
-                    baseColor={player.fund_a.shares > 0 ? '#003333' : '#1a1a1a'}
-                    dotColor={player.fund_a.shares > 0 ? 'rgba(0, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.2)'}
-                    width={200}
-                    height={40}
-                  />
-                  <span style={{ position: 'relative', zIndex: 1 }}>
-                    {formatCurrency(fundAValue)}
-                  </span>
+              <div style={styles.cardContent}>
+                <div style={styles.topRow}>
+                  <div style={{
+                    ...styles.rankText,
+                    ...(isFirst ? styles.firstPlaceRank : {})
+                  }}>
+                    #{rankMap[playerId]}
+                  </div>
+                  <div style={styles.playerName}>{displayName}</div>
                 </div>
-                <div style={styles.shares}>
-                  <HalftoneBox 
-                    baseColor='#1a1a1a'
-                    dotColor='rgba(255, 255, 255, 0.2)'
-                    width={80}
-                    height={40}
-                  />
-                  <span style={{ position: 'relative', zIndex: 1 }}>
-                    {player.fund_a.shares > 0 ? `${Math.round(player.fund_a.shares)}sh` : '-'}
-                  </span>
+                <div style={styles.bottomRow}>
+                  <div style={{
+                    ...styles.networthText,
+                    ...(player.fund_a.shares > 0 ? styles.stockGlow : {})
+                  }}>
+                    {formatCurrency(fundAValue)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -178,102 +206,136 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     width: '100%',
-    backgroundColor: '#0a0e27',
     padding: '0px',
     position: 'relative',
+  },
+  scoreboardHeader: {
+    marginBottom: '20px',
+    position: 'relative',
+  },
+  headerText: {
+    fontSize: '32px',
+    fontWeight: 900,
+    fontFamily: "'Impact', 'Arial Black', sans-serif",
+    color: '#00ffff',
+    textTransform: 'uppercase',
+    letterSpacing: '3px',
+    textShadow: `
+      0 0 20px rgba(0, 255, 255, 0.8),
+      0 0 10px rgba(0, 255, 255, 0.6),
+      3px 3px 0 rgba(255, 0, 255, 0.5),
+      -1px -1px 0 rgba(255, 0, 255, 0.3)
+    `,
+    transform: 'rotate(-1deg)',
+  },
+  headerUnderline: {
+    height: '4px',
+    background: 'linear-gradient(to right, #ff00ff, #00ffff, #ff00ff)',
+    marginTop: '8px',
+    boxShadow: '0 0 10px rgba(0, 255, 255, 0.5)',
+    transform: 'rotate(-0.5deg)',
   },
   scoreboardList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '16px',
+    padding: '10px 0',
   },
   playerCard: {
-    padding: '12px',
+    padding: '12px 12px 12px 18px',
+    display: 'flex',
+    flexDirection: 'column',
+    boxShadow: `
+      0 6px 20px rgba(0, 0, 0, 0.4),
+      inset 0 0 30px rgba(255, 255, 255, 0.1),
+      0 0 0 2px rgba(0, 0, 0, 0.5)
+    `,
+    position: 'relative',
+    backdropFilter: 'blur(10px)',
+    overflow: 'hidden',
+    transition: 'all 0.2s ease',
+    cursor: 'pointer',
+  },
+  cardContent: {
+    position: 'relative',
+    zIndex: 1,
     display: 'flex',
     flexDirection: 'column',
     gap: '10px',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.1)',
-    position: 'relative',
-    backdropFilter: 'blur(10px)',
   },
-  playerHeader: {
+  topRow: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    paddingBottom: '8px',
-    position: 'relative',
-    zIndex: 1,
   },
   rankText: {
     fontWeight: 900,
-    fontSize: '28px',
+    fontSize: '36px',
     fontFamily: "'Impact', 'Arial Black', sans-serif",
     color: '#fff',
     textTransform: 'uppercase',
-    textShadow: '0 0 10px rgba(255, 255, 255, 0.8), 2px 2px 0 rgba(0, 0, 0, 0.5)',
+    textShadow: `
+      0 0 10px rgba(255, 255, 255, 0.8),
+      3px 3px 0 rgba(0, 0, 0, 0.6),
+      -1px -1px 0 rgba(0, 0, 0, 0.3)
+    `,
+    minWidth: '70px',
+  },
+  firstPlaceRank: {
+    fontSize: '42px',
+    color: '#ffd700',
+    textShadow: `
+      0 0 20px rgba(255, 215, 0, 1),
+      0 0 10px rgba(255, 215, 0, 0.8),
+      3px 3px 0 rgba(0, 0, 0, 0.7),
+      -1px -1px 0 rgba(255, 0, 255, 0.3)
+    `,
   },
   playerName: {
     fontWeight: 'bold',
-    fontSize: '18px',
+    fontSize: '20px',
     color: '#fff',
     flex: 1,
     fontFamily: "'Impact', 'Arial Black', sans-serif",
     textTransform: 'uppercase',
-    letterSpacing: '1px',
-    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
+    letterSpacing: '1.5px',
+    textShadow: '3px 3px 6px rgba(0, 0, 0, 0.8)',
   },
-  fundsGrid: {
-    display: 'grid',
-    gridTemplateColumns: '2fr 1fr',
-    gridTemplateRows: '1fr 1fr',
-    gap: '5px',
-  },
-  fundInfo: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '10px',
-    alignItems: 'center',
-    position: 'relative',
-    zIndex: 1,
-  },
-  fundValue: {
-    padding: '8px 12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '20px',
+  sharesText: {
+    fontSize: '26px',
     fontWeight: 'bold',
-    textAlign: 'center',
     fontFamily: "'Courier New', monospace",
     color: '#fff',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
-    boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 0.5)',
-    textShadow: '0 0 5px rgba(255, 255, 255, 0.5)',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  inCash: {},
-  inStock: {
-    border: '2px solid #00ffff',
-    boxShadow: '0 0 10px rgba(0, 255, 255, 0.5), inset 0 0 10px rgba(0, 255, 255, 0.2)',
-  },
-  shares: {
-    padding: '8px 12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    fontSize: '16px',
-    textAlign: 'right',
-    color: '#fff',
-    fontFamily: "'Courier New', monospace",
-    fontWeight: 'bold',
-    marginLeft: 'auto',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
-    boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 0.5)',
+    textShadow: '0 0 10px rgba(255, 255, 255, 0.7), 2px 2px 4px rgba(0, 0, 0, 0.8)',
     minWidth: '80px',
-    textShadow: '0 0 5px rgba(255, 255, 255, 0.5)',
-    overflow: 'hidden',
-    position: 'relative',
+    textAlign: 'right',
+  },
+  sharesLabel: {
+    fontSize: '14px',
+    opacity: 0.9,
+    marginLeft: '3px',
+  },
+  bottomRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: '6px',
+  },
+  networthText: {
+    fontSize: '28px',
+    fontWeight: 'bold',
+    fontFamily: "'Courier New', monospace",
+    color: '#fff',
+    textShadow: '0 0 10px rgba(255, 255, 255, 0.7), 3px 3px 6px rgba(0, 0, 0, 0.8)',
+  },
+  stockGlow: {
+    color: '#00ffff',
+    textShadow: `
+      0 0 20px rgba(0, 255, 255, 1),
+      0 0 10px rgba(0, 255, 255, 0.8),
+      0 0 5px rgba(0, 255, 255, 0.6),
+      3px 3px 6px rgba(0, 0, 0, 0.8)
+    `,
   },
 };
 

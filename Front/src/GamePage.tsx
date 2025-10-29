@@ -138,8 +138,12 @@ const GamePage: React.FC = () => {
 
       <div style={styles.sidebar}>
         <div style={styles.timerSection}>
-          <div style={styles.timerLabel}>TIME</div>
           <div style={styles.timer}>{formatTime(timeRemaining)}</div>
+          <div style={{
+            ...styles.timerUnderline,
+            width: `${(timeRemaining / GAME_DURATION) * 100}%`,
+            backgroundSize: `${100 / (timeRemaining / GAME_DURATION)}% 100%`,
+          }}></div>
         </div>
 
         {serverGameState && (
@@ -192,7 +196,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   sidebar: {
     width: '280px',
-    backgroundColor: '#050818',
+    background: 'linear-gradient(to right, #0a0e27, #1a2850)',
     padding: '20px',
     overflowY: 'auto',
     display: 'flex',
@@ -202,8 +206,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   timerSection: {
     backgroundColor: '#0a0e27',
     padding: '20px',
-    border: '3px solid #00ffff',
-    boxShadow: '0 0 30px rgba(0, 255, 255, 0.6), inset 0 0 20px rgba(0, 255, 255, 0.1)',
     textAlign: 'center',
     position: 'relative',
   },
@@ -219,10 +221,21 @@ const styles: { [key: string]: React.CSSProperties } = {
   timer: {
     fontSize: '56px',
     fontWeight: '900',
-    color: '#ff00ff',
+    background: 'linear-gradient(to right, #ff00ff, #00ffff, #ff00ff)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
     fontFamily: "'Impact', 'Arial Black', sans-serif",
     letterSpacing: '6px',
-    textShadow: '0 0 20px #ff00ff, 0 0 40px #ff00ff, 0 0 60px #ff00ff',
+    textShadow: 'none',
+    filter: 'drop-shadow(0 0 20px rgba(255, 0, 255, 0.6)) drop-shadow(0 0 10px rgba(0, 255, 255, 0.4))',
+  },
+  timerUnderline: {
+    height: '4px',
+    background: 'linear-gradient(to right, #ff00ff, #00ffff, #ff00ff)',
+    marginTop: '15px',
+    boxShadow: '0 0 10px rgba(0, 255, 255, 0.5)',
+    transition: 'width 0.5s linear',
   },
   mainContent: {
     flex: 1,
@@ -241,13 +254,11 @@ const styles: { [key: string]: React.CSSProperties } = {
   chartContainer: {
     flex: 1,
     backgroundColor: '#0a0e27',
-    border: '3px solid #00ffff',
     borderRadius: '0px',
     padding: '15px',
     display: 'flex',
     flexDirection: 'column',
     minHeight: 0,
-    boxShadow: '0 0 20px rgba(0, 255, 255, 0.3)',
     position: 'relative',
   },
 };

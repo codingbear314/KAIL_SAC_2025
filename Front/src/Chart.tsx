@@ -241,19 +241,17 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
       }
     });
 
-    // Draw current price line
+    // Draw current price line - thin neon style
     if (currentPrice > 0) {
       const priceY = priceToY(currentPrice);
       ctx.strokeStyle = '#ff00ff';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2.5;
       ctx.shadowBlur = 10;
       ctx.shadowColor = '#ff00ff';
-      ctx.setLineDash([5, 5]);
       ctx.beginPath();
       ctx.moveTo(0, priceY);
       ctx.lineTo(canvas.width - 60, priceY);
       ctx.stroke();
-      ctx.setLineDash([]);
       ctx.shadowBlur = 0;
     }
   }, [candles, currentPrice, dimensions]);
@@ -282,7 +280,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   chartArea: {
     flex: 1,
     backgroundColor: '#0a0e27',
-    border: '3px solid #00ffff',
     borderRadius: '0',
     display: 'flex',
     alignItems: 'center',
@@ -290,7 +287,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: '200px',
     position: 'relative',
     overflow: 'hidden',
-    boxShadow: '0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 40px rgba(0, 20, 40, 0.8)',
+    boxShadow: 'inset 0 0 40px rgba(0, 20, 40, 0.8)',
     backgroundImage: `
       repeating-linear-gradient(
         90deg,
