@@ -123,10 +123,13 @@ const GamePage: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [serverGameState?.game_running, serverGameState?.players, playerAction, playBuySound, playSellSound, playerConfig]);
 
-  const handleStartGame = () => {
+  const handleStartGame = (config?: PlayerConfig) => {
+    const configToUse = config ?? playerConfig;
+
     // Join game with current player configuration before starting
-    if (playerConfig && connected && playerId) {
-      joinGame(playerConfig);
+    if (configToUse && connected && playerId) {
+      setPlayerConfig(configToUse);
+      joinGame(configToUse);
     }
     // Trigger chart reset when starting game
     setChartResetSignal(Date.now());
@@ -138,7 +141,7 @@ const GamePage: React.FC = () => {
     setPlayerConfig(config);
   };
 
-  const handlePlayAgain = () => {
+  const handlePlayAgain = (_?: PlayerConfig) => {
     setTimeRemaining(GAME_DURATION);
     console.log('Preparing for new game');
     setClientGameStatus('prepare');

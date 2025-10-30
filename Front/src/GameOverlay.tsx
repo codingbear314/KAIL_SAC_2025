@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import type { LeaderboardEntry } from './hooks/useSocket';
 
 interface GameOverlayProps {
-  overlayBtn: () => void;
+  overlayBtn: (config?: PlayerConfig) => void;
   isGameOver: boolean;
   leaderboard?: LeaderboardEntry[];
   onPlayerConfigChange?: (config: PlayerConfig) => void;
@@ -47,11 +47,12 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
 
   const handleStartGame = () => {
     // Ensure we only send the names for active players
-    const activePlayerNames = playerNames.slice(0, numPlayers).map((name, i) => 
+    const activePlayerNames = playerNames.slice(0, numPlayers).map((name, i) =>
       name.trim() || `Player ${i + 1}`
     );
-    onPlayerConfigChange?.({ numPlayers, playerNames: activePlayerNames });
-    overlayBtn();
+    const config = { numPlayers, playerNames: activePlayerNames };
+    onPlayerConfigChange?.(config);
+    overlayBtn(config);
   };
 
   // Use latestGlobalTop10 if provided via socket payload, otherwise fetch when game ends
@@ -168,7 +169,7 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
                 </div>
               </div>
             </div>
-            <button onClick={overlayBtn} style={styles.startButton}>
+            <button onClick={() => overlayBtn()} style={styles.startButton}>
               Play Again
             </button>
           </>
