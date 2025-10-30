@@ -76,10 +76,15 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
           // Start Screen
           <>
             <div style={styles.startScreenLayout}>
-              <div style={styles.logoPlaceholder}>
-                <div style={styles.logoText}>KAIL</div>
-                <div style={styles.logoSubtext}>천하제일 단타대회 (로고 삽입 예정)</div>
-              </div>
+            <div style={styles.logoPlaceholder}>
+              <img 
+                src="logo.png" 
+                alt="KAIL Logo" 
+                style={styles.logoImage} 
+              />
+              <div style={styles.logoSubtext}>천하제일 단타대회</div>
+            </div>
+
               
               <div style={styles.configSection}>
                 <h2 style={styles.configTitle}>설정</h2>
@@ -231,6 +236,15 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
     justifyContent: 'center',
     boxShadow: '0 0 30px rgba(255, 0, 255, 0.3), inset 0 0 30px rgba(0, 0, 0, 0.5)',
   },
+  logoImage: {
+    width: '200%',          // shrink relative to container width
+    height: 'auto',        // preserve aspect ratio
+    maxWidth: '270px',     // prevent excessive scaling on large screens
+    maxHeight: '500px',    // ensures it doesn't dominate vertically
+    objectFit: 'contain',
+    filter: 'drop-shadow(0 0 20px rgba(255, 0, 255, 0.5)) drop-shadow(0 0 10px rgba(0, 255, 255, 0.5))',
+  },
+
   logoText: {
     fontSize: '48px',
     fontWeight: 'normal',
