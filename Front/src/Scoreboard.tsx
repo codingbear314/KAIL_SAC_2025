@@ -248,7 +248,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     border: '2px solid rgba(255, 255, 255, 0.15)',
-    borderRadius: '8px',
+    clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
     boxShadow: `
       0 8px 25px rgba(0, 0, 0, 0.5),
       inset 0 0 30px rgba(255, 255, 255, 0.1),

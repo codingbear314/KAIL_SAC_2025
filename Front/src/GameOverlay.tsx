@@ -69,9 +69,8 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
       .catch(err => console.error('Failed to fetch global leaderboard:', err));
   }, [isGameOver, (latestGlobalTop10 as any)]);
   return (
-    <div style={styles.overlay}>
-      <div style={styles.content}>
-        {!isGameOver ? (
+    <div style={styles.content}>
+      {!isGameOver ? (
           // Start Screen
           <>
             <div style={styles.startScreenLayout}>
@@ -175,21 +174,23 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
           </>
         )}
       </div>
-    </div>
-  );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  overlay: {
+    );
+  };
+  
+  const styles: { [key: string]: React.CSSProperties } = {
+  content: {
     position: 'fixed',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(10, 14, 39, 0.95)',
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: '40px',
+    padding: '60px 80px',
+    backgroundColor: 'rgba(10, 14, 39, 0.95)',
     zIndex: 1000,
     backdropFilter: 'blur(20px)',
     backgroundImage: `
@@ -210,25 +211,6 @@ const styles: { [key: string]: React.CSSProperties } = {
       )
     `,
   },
-  content: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '28px',
-    padding: '42px 49px',
-    backgroundColor: 'rgba(10, 14, 39, 0.85)',
-    border: '3px solid rgba(255, 0, 255, 0.5)',
-    borderRadius: '12px',
-    boxShadow: `
-      0 0 60px rgba(255, 0, 255, 0.4),
-      0 0 100px rgba(0, 255, 255, 0.2),
-      inset 0 0 60px rgba(0, 0, 0, 0.5)
-    `,
-    backdropFilter: 'blur(15px)',
-    maxWidth: '840px',
-    width: '90%',
-    transform: 'scale(0.7)',
-  },
   startScreenLayout: {
     display: 'flex',
     gap: '60px',
@@ -240,7 +222,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     height: '280px',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
     border: '3px solid rgba(255, 0, 255, 0.4)',
-    borderRadius: '12px',
+    clipPath: 'polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -303,7 +285,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: 'rgba(10, 14, 39, 0.6)',
     color: '#fff',
     border: '2px solid rgba(255, 255, 255, 0.2)',
-    borderRadius: '8px',
+    clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     fontFamily: "'NeoDunggeunmo', monospace",
@@ -326,7 +308,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: 'rgba(10, 14, 39, 0.6)',
     color: '#fff',
     border: '2px solid rgba(255, 255, 255, 0.2)',
-    borderRadius: '8px',
+    clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
     fontFamily: "'NeoDunggeunmo', monospace",
     outline: 'none',
     transition: 'all 0.2s ease',
@@ -359,7 +341,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: 'rgba(10, 14, 39, 0.8)',
     color: '#00ffff',
     border: '2px solid #00ffff',
-    borderRadius: '8px',
+    clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
     cursor: 'pointer',
     boxShadow: '0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1)',
     transition: 'all 0.2s ease',
@@ -400,7 +382,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '18px 25px',
     backgroundColor: 'rgba(10, 14, 39, 0.6)',
     border: '2px solid rgba(255, 255, 255, 0.15)',
-    borderRadius: '8px',
+    clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
     boxShadow: `
       0 4px 15px rgba(0, 0, 0, 0.3),
       inset 0 0 20px rgba(0, 0, 0, 0.3),
@@ -435,7 +417,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     padding: '8px 16px',
     border: '2px solid rgba(0, 255, 255, 0.4)',
-    borderRadius: '6px',
+    clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)',
     boxShadow: '0 0 15px rgba(0, 255, 255, 0.3)',
     textShadow: '0 0 8px rgba(0, 255, 255, 0.6)',
     fontFeatureSettings: "'tnum'",
