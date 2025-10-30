@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 interface ChartProps {
   currentPrice: number;
-  resetSignal?: number; // Timestamp or counter to trigger reset
+  resetSignal?: number;
 }
 
 interface Candle {
@@ -10,7 +10,7 @@ interface Candle {
   high: number;
   low: number;
   close: number;
-  invisible?: boolean; // For padding candles
+  invisible?: boolean;
 }
 
 const CANDLE_INTERVAL_MS = 500;
@@ -26,7 +26,6 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
   const lastCandleTime = useRef<number>(0);
   const currentCandle = useRef<Candle | null>(null);
 
-  // Update dimensions when container resizes
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
@@ -34,16 +33,13 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
         setDimensions({ width: rect.width, height: rect.height });
       }
     };
-    
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // Reset chart when resetSignal changes (button pressed)
   useEffect(() => {
     if (resetSignal) {
-      // Clear old candles and add invisible padding candles
       const paddingCandles: Candle[] = [];
       for (let i = 0; i < MAX_CANDLES - 1; i++) {
         paddingCandles.push({
@@ -51,7 +47,7 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
           high: 0,
           low: 0,
           close: 0,
-          invisible: true
+          invisible: true,
         });
       }
       setCandles(paddingCandles);
@@ -60,13 +56,10 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
     }
   }, [resetSignal]);
 
-  // Build candles from price updates
   useEffect(() => {
     if (currentPrice <= 0) return;
 
     const now = Date.now();
-
-    // Create new candle every interval
     if (now - lastCandleTime.current >= CANDLE_INTERVAL_MS) {
       if (currentCandle.current) {
         setCandles(prev => [...prev.slice(-MAX_CANDLES + 1), currentCandle.current!]);
@@ -79,12 +72,10 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
       };
       lastCandleTime.current = now;
     } else if (currentCandle.current) {
-      // Update current candle
       currentCandle.current.high = Math.max(currentCandle.current.high, currentPrice);
       currentCandle.current.low = Math.min(currentCandle.current.low, currentPrice);
       currentCandle.current.close = currentPrice;
     } else {
-      // Initialize first candle
       currentCandle.current = {
         open: currentPrice,
         high: currentPrice,
@@ -95,37 +86,32 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
     }
   }, [currentPrice]);
 
-  // Draw candlestick chart
   useEffect(() => {
     if (!canvasRef.current || candles.length === 0) return;
-    
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Include current candle in the display
-    const allCandles = currentCandle.current 
+    const allCandles = currentCandle.current
       ? [...candles, currentCandle.current]
       : candles;
 
-    // Calculate price range (only from visible candles)
     const visibleCandles = allCandles.filter(c => !c.invisible);
     if (visibleCandles.length === 0) return;
-    
+
     const prices = visibleCandles.flatMap(c => [c.high, c.low]);
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
     const priceRange = maxPrice - minPrice;
     const padding = priceRange * CHART_PADDING;
 
-    // Convert price to Y coordinate
     const priceToY = (price: number) => {
       return canvas.height - ((price - minPrice + padding) / (priceRange + padding * 2)) * canvas.height;
     };
 
-    // Draw grid lines and price labels
     ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
     ctx.lineWidth = 1;
     ctx.fillStyle = '#00ffff';
@@ -143,13 +129,10 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
       ctx.fillText(`$${price.toFixed(2)}`, canvas.width - 5, y - 3);
     }
 
-    // Calculate candle dimensions
     const candleWidth = Math.max(2, Math.floor((canvas.width - 40) / allCandles.length) - 2);
     const spacing = Math.floor((canvas.width - 40) / allCandles.length);
 
-    // Draw each candle
     allCandles.forEach((candle, index) => {
-      // Skip rendering invisible padding candles
       if (candle.invisible) return;
 
       const x = 20 + index * spacing + spacing / 2;
@@ -159,89 +142,54 @@ const Chart: React.FC<ChartProps> = ({ currentPrice, resetSignal }) => {
       const lowY = priceToY(candle.low);
       const isBullish = candle.close >= candle.open;
 
-      // Draw wick
-      ctx.strokeStyle = isBullish ? '#0099ff' : '#ff6600';
+      // Vibrant red for bullish, blue for bearish
+      ctx.strokeStyle = isBullish ? '#ff0033' : '#0066ff';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(x, highY);
       ctx.lineTo(x, lowY);
       ctx.stroke();
 
-      // Draw body with gradient
       const bodyTop = Math.min(openY, closeY);
       const bodyHeight = Math.abs(closeY - openY) || 1;
-      
-      // Validate gradient coordinates
-      if (!isFinite(bodyTop) || !isFinite(bodyHeight) || !isFinite(x) || !isFinite(candleWidth)) {
-        return; // Skip this candle if coordinates are invalid
-      }
-      
+      if (!isFinite(bodyTop) || !isFinite(bodyHeight) || !isFinite(x) || !isFinite(candleWidth)) return;
+
       if (isBullish) {
-        // Blue halftone for up
-        ctx.fillStyle = '#0066ff';
+        // Red halftone
+        ctx.fillStyle = '#ff0000';
         ctx.fillRect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
-        
-        // Add lighter dots with gradually changing size for halftone effect
-        ctx.fillStyle = '#00ccff';
-        const dotSpacing = 3;
-        // Ensure we stay within bounds
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
-        ctx.clip();
-        
-        for (let dy = 0; dy < bodyHeight; dy += dotSpacing) {
-          for (let dx = 0; dx < candleWidth; dx += dotSpacing) {
-            // Gradually change dot size based on vertical position
-            const progress = dy / bodyHeight;
-            const dotSize = 0.5 + progress * 2; // Range from 0.5 to 2.5
-            ctx.beginPath();
-            ctx.arc(
-              x - candleWidth / 2 + dx + ((Math.floor(dy / dotSpacing) % 2) * (dotSpacing / 2)),
-              bodyTop + dy,
-              dotSize,
-              0,
-              Math.PI * 2
-            );
-            ctx.fill();
-          }
-        }
-        ctx.restore();
+        ctx.fillStyle = '#ff6666';
       } else {
-        // Orange halftone for down
-        ctx.fillStyle = '#ff6600';
+        // Blue halftone
+        ctx.fillStyle = '#0033ff';
         ctx.fillRect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
-        
-        // Add lighter dots with gradually changing size for halftone effect
-        ctx.fillStyle = '#ff9933';
-        const dotSpacing = 3;
-        // Ensure we stay within bounds
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
-        ctx.clip();
-        
-        for (let dy = 0; dy < bodyHeight; dy += dotSpacing) {
-          for (let dx = 0; dx < candleWidth; dx += dotSpacing) {
-            // Gradually change dot size based on vertical position
-            const progress = dy / bodyHeight;
-            const dotSize = 0.5 + progress * 2; // Range from 0.5 to 2.5
-            ctx.beginPath();
-            ctx.arc(
-              x - candleWidth / 2 + dx + ((Math.floor(dy / dotSpacing) % 2) * (dotSpacing / 2)),
-              bodyTop + dy,
-              dotSize,
-              0,
-              Math.PI * 2
-            );
-            ctx.fill();
-          }
-        }
-        ctx.restore();
+        ctx.fillStyle = '#66aaff';
       }
+
+      const dotSpacing = 3;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
+      ctx.clip();
+
+      for (let dy = 0; dy < bodyHeight; dy += dotSpacing) {
+        for (let dx = 0; dx < candleWidth; dx += dotSpacing) {
+          const progress = dy / bodyHeight;
+          const dotSize = 0.5 + progress * 2;
+          ctx.beginPath();
+          ctx.arc(
+            x - candleWidth / 2 + dx + ((Math.floor(dy / dotSpacing) % 2) * (dotSpacing / 2)),
+            bodyTop + dy,
+            dotSize,
+            0,
+            Math.PI * 2
+          );
+          ctx.fill();
+        }
+      }
+      ctx.restore();
     });
 
-    // Draw current price line - thin neon style
     if (currentPrice > 0) {
       const priceY = priceToY(currentPrice);
       ctx.strokeStyle = '#ff00ff';

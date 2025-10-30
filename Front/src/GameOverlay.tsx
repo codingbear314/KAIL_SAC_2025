@@ -131,17 +131,17 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
         ) : (
           // Game Over Screen
           <>
-            <h1 style={styles.gameOverText}>Game Ended</h1>
+            <h1 style={styles.gameOverText}>게임 종료</h1>
             <div style={styles.leaderboardsContainer}>
               {leaderboard && leaderboard.length > 0 && (
                 <div style={styles.leaderboardContainer}>
-                  <h2 style={styles.leaderboardTitle}>Match Results</h2>
+                  <h2 style={styles.leaderboardTitle}>순위</h2>
                   <div style={styles.leaderboardList}>
                     {leaderboard.map((entry, index) => (
                       <div key={entry.player_id} style={styles.leaderboardEntry}>
                         <span style={styles.rank}>#{index + 1}</span>
                         <span style={styles.playerName}>
-                          {entry.player_id === 'AI' ? 'AI Agent' : entry.player_id}
+                          {entry.player_id === 'AI' ? '카일 인공지능' : entry.player_id}
                         </span>
                         <span style={styles.networth}>
                           ${Math.floor(entry.networth).toLocaleString()}
@@ -153,14 +153,14 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
               )}
 
               <div style={styles.leaderboardContainer}>
-                <h2 style={styles.leaderboardTitle}>🏆 All-Time Top 5</h2>
+                <h2 style={styles.leaderboardTitle}>🏆 역대 인간 순위</h2>
                 <div style={styles.leaderboardList}>
                   {globalLeaderboard.length > 0 ? (
                     globalLeaderboard.slice(0, 5).map((entry, index) => (
                       <div key={`${entry.player_id}-${index}`} style={styles.leaderboardEntry}>
                         <span style={styles.rank}>#{index + 1}</span>
                         <span style={styles.playerName}>
-                          {entry.player_id === 'AI' ? 'AI Agent' : entry.player_id}
+                          {entry.player_id === 'AI' ? '카일 인공지능' : entry.player_id}
                         </span>
                         <span style={styles.networth}>
                           ${Math.floor(entry.networth).toLocaleString()}

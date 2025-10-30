@@ -6,7 +6,7 @@ import { useSocket } from './hooks/useSocket';
 import { useSounds } from './hooks/useSounds';
 import './App.css';
 
-const GAME_DURATION = 180; // 3 minutes
+const GAME_DURATION = 60; // 3 minutes
 const TICK_RATE = 15; // Server tick rate (Hz)
 const MAX_TICKS = TICK_RATE * GAME_DURATION; // 2700 ticks
 

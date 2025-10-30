@@ -132,7 +132,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
             ? player.fund_a.shares * currentPriceA 
             : player.fund_a.value;
 
-          const displayName = playerId === 'AI' ? 'AI Agent' : playerId;
+          const displayName = playerId === 'AI' ? '카일 인공지능' : playerId;
 
           const baseColors = [
             '#1a0044', // Darkest purple (background)
