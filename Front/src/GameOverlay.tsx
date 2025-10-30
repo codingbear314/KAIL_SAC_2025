@@ -30,19 +30,20 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
 
   const handlePlayerCountChange = (count: number) => {
     setNumPlayers(count);
-    const newNames = Array.from({ length: count }, (_, i) => 
-      playerNames[i] || `Player ${i + 1}`
+    const newNames = Array.from({ length: count }, (_, i) =>
+      playerNames[i] ?? `Player ${i + 1}`
     );
     setPlayerNames(newNames);
-    onPlayerConfigChange?.({ numPlayers: count, playerNames: newNames });
+    const sanitizedNames = newNames.map((name, i) => name.trim() || `Player ${i + 1}`);
+    onPlayerConfigChange?.({ numPlayers: count, playerNames: sanitizedNames });
   };
 
   const handleNameChange = (index: number, name: string) => {
     const newNames = [...playerNames];
-    // Only use custom name if it's not empty after trimming
-    newNames[index] = name.trim() || `Player ${index + 1}`;
+    newNames[index] = name;
     setPlayerNames(newNames);
-    onPlayerConfigChange?.({ numPlayers, playerNames: newNames });
+    const sanitizedNames = newNames.map((playerName, i) => playerName.trim() || `Player ${i + 1}`);
+    onPlayerConfigChange?.({ numPlayers, playerNames: sanitizedNames });
   };
 
   const handleStartGame = () => {
