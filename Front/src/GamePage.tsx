@@ -38,7 +38,7 @@ const GamePage: React.FC = () => {
     playerAction
   } = useSocket();
 
-  const { playBuySound, playSellSound } = useSounds();
+  const { playBuySound, playSellSound, playBackgroundMusic, stopBackgroundMusic } = useSounds();
 
   const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION);
   const [clientGameState, setClientGameStatus] = useState<'prepare' | 'playing' | 'ended'>('prepare');
@@ -134,6 +134,7 @@ const GamePage: React.FC = () => {
     // Trigger chart reset when starting game
     setChartResetSignal(Date.now());
     startGame();
+    playBackgroundMusic();
   };
 
   const handlePlayerConfigChange = (config: PlayerConfig) => {
@@ -146,7 +147,14 @@ const GamePage: React.FC = () => {
     console.log('Preparing for new game');
     setClientGameStatus('prepare');
     setPlayerConfig(null);
+    stopBackgroundMusic();
   };
+
+  useEffect(() => {
+    if (clientGameState === 'ended') {
+      stopBackgroundMusic();
+    }
+  }, [clientGameState, stopBackgroundMusic]);
 
   return (
     <div style={styles.container}>
