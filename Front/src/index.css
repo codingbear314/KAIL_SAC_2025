@@ -1,5 +1,5 @@
 :root {
-  font-family: 'Press Start 2P', 'NeoDunggeunmo', monospace;
+  font-family: 'NeoDunggeunmo', monospace;
   line-height: 1.6;
   font-weight: 400;
 
@@ -17,7 +17,7 @@
 }
 
 * {
-  font-family: 'Press Start 2P', 'NeoDunggeunmo', monospace;
+  font-family: 'NeoDunggeunmo', monospace;
 }
 
 a {

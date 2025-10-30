@@ -76,15 +76,15 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
           <>
             <div style={styles.startScreenLayout}>
               <div style={styles.logoPlaceholder}>
-                <div style={styles.logoText}>STOCK</div>
-                <div style={styles.logoSubtext}>ARENA</div>
+                <div style={styles.logoText}>KAIL</div>
+                <div style={styles.logoSubtext}>천하제일 단타대회 (로고 삽입 예정)</div>
               </div>
               
               <div style={styles.configSection}>
-                <h2 style={styles.configTitle}>Game Setup</h2>
+                <h2 style={styles.configTitle}>설정</h2>
                 
                 <div style={styles.playerCountSection}>
-                  <label style={styles.label}>Number of Players:</label>
+                  <label style={styles.label}>플레이어 수:</label>
                   <div style={styles.playerCountButtons}>
                     {[1, 2, 3, 4].map(count => (
                       <button
@@ -102,7 +102,7 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
                 </div>
 
                 <div style={styles.nameInputSection}>
-                  <label style={styles.label}>Player Names:</label>
+                  <label style={styles.label}>이름을 입력하세요</label>
                   {Array.from({ length: numPlayers }).map((_, i) => (
                     <input
                       key={i}
@@ -119,7 +119,7 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
             </div>
             
             <button onClick={handleStartGame} style={styles.startButton}>
-              Start Game
+              시작
             </button>
           </>
         ) : (
@@ -147,10 +147,10 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
               )}
 
               <div style={styles.leaderboardContainer}>
-                <h2 style={styles.leaderboardTitle}>🏆 All-Time Top 10</h2>
+                <h2 style={styles.leaderboardTitle}>🏆 All-Time Top 5</h2>
                 <div style={styles.leaderboardList}>
                   {globalLeaderboard.length > 0 ? (
-                    globalLeaderboard.slice(0, 10).map((entry, index) => (
+                    globalLeaderboard.slice(0, 5).map((entry, index) => (
                       <div key={`${entry.player_id}-${index}`} style={styles.leaderboardEntry}>
                         <span style={styles.rank}>#{index + 1}</span>
                         <span style={styles.playerName}>
@@ -248,9 +248,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxShadow: '0 0 30px rgba(255, 0, 255, 0.3), inset 0 0 30px rgba(0, 0, 0, 0.5)',
   },
   logoText: {
-    fontSize: '32px',
+    fontSize: '48px',
     fontWeight: 'normal',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     background: 'linear-gradient(135deg, #ff00ff, #00ffff)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
@@ -258,10 +258,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     letterSpacing: '4px',
   },
   logoSubtext: {
-    fontSize: '16px',
+    fontSize: '20px',
     fontWeight: 'normal',
     color: '#fff',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     letterSpacing: '8px',
     marginTop: '8px',
   },
@@ -272,10 +272,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '30px',
   },
   configTitle: {
-    fontSize: '20px',
+    fontSize: '28px',
     fontWeight: 'normal',
     color: '#fff',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     marginBottom: '10px',
     textAlign: 'left',
   },
@@ -285,10 +285,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '15px',
   },
   label: {
-    fontSize: '12px',
+    fontSize: '16px',
     fontWeight: 'normal',
     color: '#00ffff',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     letterSpacing: '1px',
   },
   playerCountButtons: {
@@ -298,7 +298,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   countButton: {
     width: '60px',
     height: '60px',
-    fontSize: '16px',
+    fontSize: '20px',
     fontWeight: 'normal',
     backgroundColor: 'rgba(10, 14, 39, 0.6)',
     color: '#fff',
@@ -306,7 +306,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '8px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
   },
   countButtonActive: {
     backgroundColor: 'rgba(0, 255, 255, 0.2)',
@@ -321,13 +321,13 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   nameInput: {
     padding: '12px 16px',
-    fontSize: '12px',
+    fontSize: '16px',
     fontWeight: 'normal',
     backgroundColor: 'rgba(10, 14, 39, 0.6)',
     color: '#fff',
     border: '2px solid rgba(255, 255, 255, 0.2)',
     borderRadius: '8px',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     outline: 'none',
     transition: 'all 0.2s ease',
   },
@@ -339,10 +339,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   gameOverText: {
     color: '#fff',
-    fontSize: '40px',
+    fontSize: '56px',
     fontWeight: 'normal',
     margin: 0,
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     textTransform: 'uppercase',
     letterSpacing: '4px',
     background: 'linear-gradient(135deg, #ff00ff, #00ffff, #ff00ff)',
@@ -354,7 +354,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   startButton: {
     padding: '18px 50px',
-    fontSize: '16px',
+    fontSize: '20px',
     fontWeight: 'normal',
     backgroundColor: 'rgba(10, 14, 39, 0.8)',
     color: '#00ffff',
@@ -365,7 +365,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     transition: 'all 0.2s ease',
     textTransform: 'uppercase',
     letterSpacing: '2px',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     textShadow: '0 0 10px rgba(0, 255, 255, 0.8)',
   },
   leaderboardContainer: {
@@ -373,12 +373,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxWidth: '650px',
   },
   leaderboardTitle: {
-    fontSize: '18px',
+    fontSize: '28px',
     fontWeight: 'normal',
     color: '#fff',
     textAlign: 'center',
     marginBottom: '25px',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     textTransform: 'uppercase',
     letterSpacing: '2px',
     background: 'linear-gradient(90deg, #ff00ff, #00ffff)',
@@ -410,17 +410,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     transition: 'all 0.2s ease',
   },
   rank: {
-    fontSize: '20px',
+    fontSize: '28px',
     fontWeight: 'normal',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     color: '#fff',
     minWidth: '70px',
     textShadow: '0 0 15px rgba(255, 0, 255, 0.8)',
   },
   playerName: {
-    fontSize: '12px',
+    fontSize: '18px',
     fontWeight: 'normal',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     color: '#fff',
     flex: 1,
     textTransform: 'uppercase',
@@ -428,9 +428,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     textShadow: '0 0 8px rgba(255, 255, 255, 0.5)',
   },
   networth: {
-    fontSize: '12px',
+    fontSize: '18px',
     fontWeight: 'normal',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     color: '#00ffff',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     padding: '8px 16px',

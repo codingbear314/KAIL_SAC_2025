@@ -99,12 +99,8 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
   const formatCurrency = (value: number) => `$${Math.floor(value).toLocaleString()}`;
   
   // Get list of actual players in the game from the players object
-  // Always show AI first, then other players in order
-  const activePlayers = Object.keys(players).sort((a, b) => {
-    if (a === 'AI') return -1;
-    if (b === 'AI') return 1;
-    return a.localeCompare(b);
-  });
+  // Preserve insertion order (AI first, then players in the order they were added)
+  const activePlayers = Object.keys(players);
   
   // Calculate networth for all active players
   const networthMap: Record<string, number> = {};
@@ -222,7 +218,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   headerText: {
     fontSize: '20px',
     fontWeight: 'normal',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     color: '#00ffff',
     textTransform: 'uppercase',
     letterSpacing: '2px',
@@ -279,8 +275,8 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   rankText: {
     fontWeight: 'normal',
-    fontSize: '24px',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontSize: '32px',
+    fontFamily: "'NeoDunggeunmo', monospace",
     color: '#fff',
     textTransform: 'uppercase',
     textShadow: `
@@ -291,7 +287,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     minWidth: '70px',
   },
   firstPlaceRank: {
-    fontSize: '28px',
+    fontSize: '36px',
     color: '#ffd700',
     textShadow: `
       0 0 20px rgba(255, 215, 0, 1),
@@ -302,10 +298,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   playerName: {
     fontWeight: 'normal',
-    fontSize: '12px',
+    fontSize: '18px',
     color: '#fff',
     flex: 1,
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     textTransform: 'uppercase',
     letterSpacing: '1px',
     textShadow: '3px 3px 6px rgba(0, 0, 0, 0.8)',
@@ -313,7 +309,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   sharesText: {
     fontSize: '16px',
     fontWeight: 'normal',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     color: '#fff',
     textShadow: '0 0 10px rgba(255, 255, 255, 0.7), 2px 2px 4px rgba(0, 0, 0, 0.8)',
     minWidth: '80px',
@@ -331,9 +327,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     paddingTop: '6px',
   },
   networthText: {
-    fontSize: '16px',
+    fontSize: '22px',
     fontWeight: 'normal',
-    fontFamily: "'Press Start 2P', 'NeoDunggeunmo', monospace",
+    fontFamily: "'NeoDunggeunmo', monospace",
     color: '#fff',
     textShadow: '0 0 10px rgba(255, 255, 255, 0.7), 3px 3px 6px rgba(0, 0, 0, 0.8)',
   },

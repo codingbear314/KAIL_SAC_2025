@@ -1,8 +1,23 @@
 [
   {
     "player_id": "AI",
+    "networth": 146082.0884281328,
+    "timestamp": "2025-10-30T03:36:29.842570"
+  },
+  {
+    "player_id": "AI",
+    "networth": 116978.76049973728,
+    "timestamp": "2025-10-29T23:50:16.780574"
+  },
+  {
+    "player_id": "AI",
     "networth": 66877.07417225998,
     "timestamp": "2025-10-29T18:29:29.486722"
+  },
+  {
+    "player_id": "AI",
+    "networth": 66877.07417225998,
+    "timestamp": "2025-10-30T02:16:11.639572"
   },
   {
     "player_id": "t2p2",
@@ -10,9 +25,24 @@
     "timestamp": "2025-10-29T18:29:29.486722"
   },
   {
+    "player_id": "AI",
+    "networth": 57369.128985149386,
+    "timestamp": "2025-10-29T23:22:24.904582"
+  },
+  {
+    "player_id": "AI",
+    "networth": 57369.128985149386,
+    "timestamp": "2025-10-30T02:57:51.001652"
+  },
+  {
     "player_id": "t2p1",
     "networth": 52496.20012791734,
     "timestamp": "2025-10-29T18:29:29.486722"
+  },
+  {
+    "player_id": "AI",
+    "networth": 51657.07485677835,
+    "timestamp": "2025-10-30T10:49:30.707205"
   },
   {
     "player_id": "AI",
@@ -26,8 +56,23 @@
   },
   {
     "player_id": "AI",
+    "networth": 28835.92168199897,
+    "timestamp": "2025-10-30T09:59:24.685686"
+  },
+  {
+    "player_id": "AI",
     "networth": 20481.831642937144,
     "timestamp": "2025-10-29T18:22:15.655829"
+  },
+  {
+    "player_id": "eee",
+    "networth": 15758.145710465618,
+    "timestamp": "2025-10-30T02:16:11.639572"
+  },
+  {
+    "player_id": "rrrr",
+    "networth": 14125.528591375307,
+    "timestamp": "2025-10-30T02:16:11.639572"
   },
   {
     "player_id": "AI",
@@ -48,6 +93,26 @@
     "player_id": "Player 3",
     "networth": 10985.569668798673,
     "timestamp": "2025-10-29T18:22:15.655829"
+  },
+  {
+    "player_id": "Player 2",
+    "networth": 10566.049937376767,
+    "timestamp": "2025-10-30T09:59:24.685686"
+  },
+  {
+    "player_id": "Player 3",
+    "networth": 10487.374769592565,
+    "timestamp": "2025-10-30T09:59:24.685686"
+  },
+  {
+    "player_id": "Player 2",
+    "networth": 10434.409389602482,
+    "timestamp": "2025-10-30T10:49:30.707205"
+  },
+  {
+    "player_id": "Player999",
+    "networth": 10189.263023303218,
+    "timestamp": "2025-10-30T09:59:24.685686"
   },
   {
     "player_id": "t2p1",
@@ -108,6 +173,51 @@
     "player_id": "Player 3",
     "networth": 10000.0,
     "timestamp": "2025-10-29T21:29:36.791336"
+  },
+  {
+    "player_id": "one",
+    "networth": 10000.0,
+    "timestamp": "2025-10-29T23:22:24.904582"
+  },
+  {
+    "player_id": "two",
+    "networth": 10000.0,
+    "timestamp": "2025-10-29T23:22:24.904582"
+  },
+  {
+    "player_id": "three",
+    "networth": 10000.0,
+    "timestamp": "2025-10-29T23:22:24.904582"
+  },
+  {
+    "player_id": "123",
+    "networth": 10000.0,
+    "timestamp": "2025-10-29T23:50:16.780574"
+  },
+  {
+    "player_id": "456",
+    "networth": 10000.0,
+    "timestamp": "2025-10-29T23:50:16.780574"
+  },
+  {
+    "player_id": "Playerpppppp",
+    "networth": 10000.0,
+    "timestamp": "2025-10-30T02:57:51.001652"
+  },
+  {
+    "player_id": "Playerpppppp",
+    "networth": 10000.0,
+    "timestamp": "2025-10-30T03:36:29.842570"
+  },
+  {
+    "player_id": "Player 4",
+    "networth": 9969.008212895833,
+    "timestamp": "2025-10-30T09:59:24.685686"
+  },
+  {
+    "player_id": "Player\u3157\u3137",
+    "networth": 9658.537879559994,
+    "timestamp": "2025-10-30T10:49:30.707205"
   },
   {
     "player_id": "Player 2",
