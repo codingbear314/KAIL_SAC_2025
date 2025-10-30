@@ -39,6 +39,10 @@ def save_game_results_to_global(leaderboard):
         timestamp = datetime.now().isoformat()
 
         for entry in leaderboard:
+            # Skip AI players - don't save them to global leaderboard
+            if entry['player_id'] == 'AI':
+                continue
+                
             global_leaderboard.append({
                 'player_id': entry['player_id'],
                 'networth': entry['networth'],
@@ -50,7 +54,7 @@ def save_game_results_to_global(leaderboard):
         global_leaderboard = global_leaderboard[:100]
 
         save_global_leaderboard(global_leaderboard)
-        print(f"Saved {len(leaderboard)} results to global leaderboard")
+        print(f"Saved {len([e for e in leaderboard if e['player_id'] != 'AI'])} results to global leaderboard (excluding AI)")
         # Return the current top 10 for immediate use
         return global_leaderboard[:10]
     except Exception as e:
