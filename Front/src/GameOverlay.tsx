@@ -76,10 +76,15 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
           // Start Screen
           <>
             <div style={styles.startScreenLayout}>
-              <div style={styles.logoPlaceholder}>
-                <div style={styles.logoText}>KAIL</div>
-                <div style={styles.logoSubtext}>천하제일 단타대회 (로고 삽입 예정)</div>
-              </div>
+            <div style={styles.logoPlaceholder}>
+              <img 
+                src="logo.png" 
+                alt="KAIL Logo" 
+                style={styles.logoImage} 
+              />
+              <div style={styles.logoSubtext}>천하제일 단타대회</div>
+            </div>
+
               
               <div style={styles.configSection}>
                 <h2 style={styles.configTitle}>설정</h2>
@@ -126,17 +131,17 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
         ) : (
           // Game Over Screen
           <>
-            <h1 style={styles.gameOverText}>Game Ended</h1>
+            <h1 style={styles.gameOverText}>게임 종료</h1>
             <div style={styles.leaderboardsContainer}>
               {leaderboard && leaderboard.length > 0 && (
                 <div style={styles.leaderboardContainer}>
-                  <h2 style={styles.leaderboardTitle}>Match Results</h2>
+                  <h2 style={styles.leaderboardTitle}>순위</h2>
                   <div style={styles.leaderboardList}>
                     {leaderboard.map((entry, index) => (
                       <div key={entry.player_id} style={styles.leaderboardEntry}>
                         <span style={styles.rank}>#{index + 1}</span>
                         <span style={styles.playerName}>
-                          {entry.player_id === 'AI' ? 'AI Agent' : entry.player_id}
+                          {entry.player_id === 'AI' ? '카일 인공지능' : entry.player_id}
                         </span>
                         <span style={styles.networth}>
                           ${Math.floor(entry.networth).toLocaleString()}
@@ -148,14 +153,14 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
               )}
 
               <div style={styles.leaderboardContainer}>
-                <h2 style={styles.leaderboardTitle}>🏆 All-Time Top 5</h2>
+                <h2 style={styles.leaderboardTitle}>🏆 역대 인간 순위</h2>
                 <div style={styles.leaderboardList}>
                   {globalLeaderboard.length > 0 ? (
                     globalLeaderboard.slice(0, 5).map((entry, index) => (
                       <div key={`${entry.player_id}-${index}`} style={styles.leaderboardEntry}>
                         <span style={styles.rank}>#{index + 1}</span>
                         <span style={styles.playerName}>
-                          {entry.player_id === 'AI' ? 'AI Agent' : entry.player_id}
+                          {entry.player_id === 'AI' ? '카일 인공지능' : entry.player_id}
                         </span>
                         <span style={styles.networth}>
                           ${Math.floor(entry.networth).toLocaleString()}
@@ -231,6 +236,15 @@ const GameOverlay: React.FC<GameOverlayProps> = ({
     justifyContent: 'center',
     boxShadow: '0 0 30px rgba(255, 0, 255, 0.3), inset 0 0 30px rgba(0, 0, 0, 0.5)',
   },
+  logoImage: {
+    width: '200%',          // shrink relative to container width
+    height: 'auto',        // preserve aspect ratio
+    maxWidth: '270px',     // prevent excessive scaling on large screens
+    maxHeight: '500px',    // ensures it doesn't dominate vertically
+    objectFit: 'contain',
+    filter: 'drop-shadow(0 0 20px rgba(255, 0, 255, 0.5)) drop-shadow(0 0 10px rgba(0, 255, 255, 0.5))',
+  },
+
   logoText: {
     fontSize: '48px',
     fontWeight: 'normal',

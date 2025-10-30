@@ -23,7 +23,7 @@ stock_loader = StockDataLoader()
 
 TICK_RATE = 15
 TICK_INTERVAL = 1.0 / TICK_RATE
-GAME_DURATION_SECONDS = 180  # 3 minutes
+GAME_DURATION_SECONDS = 60  # 3 minutes
 MAX_TICKS = TICK_RATE * GAME_DURATION_SECONDS  # 15 Hz * 180 sec = 2700 ticks
 
 game_loop_task = None
@@ -244,11 +244,12 @@ def save_game_results_to_global(leaderboard):
         timestamp = datetime.now().isoformat()
         
         for entry in leaderboard:
-            global_leaderboard.append({
-                'player_id': entry['player_id'],
-                'networth': entry['networth'],
-                'timestamp': timestamp
-            })
+            if entry['player_id'] != 'AI':
+                global_leaderboard.append({
+                    'player_id': entry['player_id'],
+                    'networth': entry['networth'],
+                    'timestamp': timestamp
+                })
         
         # Sort by networth (descending) and keep only top 100
         global_leaderboard.sort(key=lambda x: x['networth'], reverse=True)
